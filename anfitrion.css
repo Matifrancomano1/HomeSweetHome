@@ -1,0 +1,19 @@
+:root {
+    --primary: #3498db;
+    --primary-dark: #2980b9;
+    --secondary: #f39c12;
+    --light: #ecf0f1;
+    --dark: #34495e;
+    --success: #2ecc71;
+    --danger: #e74c3c;
+    --text-light: #7f8c8d;
+    --border: #ddd;
+}
+/* ...rest of the CSS from <style> in anfitrion.html... */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+/* ...all other CSS rules from anfitrion.html... */

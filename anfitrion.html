@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HomeSweetHome | Panel de Anfitrión</title>
+    <link rel="stylesheet" href="anfitrion.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="var(--primary)">
+                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11V11.99z"/>
+                    </svg>
+                    <h1>HomeSweetHome</h1>
+                </div>
+                
+                <div class="user-info">
+                    <div class="user-avatar">JD</div>
+                    <div>
+                        <div class="user-name">Rodrigo Ruiz</div>
+                        <div class="user-role">Anfitrión</div>
+                    </div>
+                </div>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li><a href="#" class="active"><span>📊</span> <span>Dashboard</span></a></li>
+                <li><a href="#"><span>🏠</span> <span>Mis Propiedades</span></a></li>
+                <li><a href="#"><span>📅</span> <span>Calendario</span></a></li>
+                <li><a href="#"><span>💰</span> <span>Ingresos</span></a></li>
+                <li><a href="#"><span>⭐</span> <span>Reseñas</span></a></li>
+                <li><a href="#"><span>⚙️</span> <span>Configuración</span></a></li>
+                <li><a href="#"><span>🚪</span> <span>Cerrar Sesión</span></a></li>
+            </ul>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <div class="welcome">
+                    <h2>Bienvenido, Rodrigo</h2>
+                    <p>Gestiona tus reservas y propiedades</p>
+                </div>
+                <div class="header-actions">
+                    <button class="action-btn btn-primary">Nueva Reserva</button>
+                </div>
+            </div>
+            
+            <!-- Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">Reservas Activas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">85%</div>
+                    <div class="stat-label">Ocupación</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">4.8</div>
+                    <div class="stat-label">Puntuación</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Pendientes</div>
+                </div>
+            </div>
+            
+            <!-- Property Info -->
+            <div class="property-info">
+                <div class="property-header">
+                    <img src="https://placehold.co/300x200" alt="Modern apartment in city center with balcony and city views" class="property-image">
+                    <div class="property-details">
+                        <h3>Departamento Premium Centro</h3>
+                        <p>Av. Principal 123, Ciudad</p>
+                        <p>4 huéspedes · 2 habitaciones · 1 baño</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tabs -->
+            <div class="tabs">
+                <div class="tab active" data-tab="calendar">Calendario</div>
+                <div class="tab" data-tab="reservations">Reservas</div>
+                <div class="tab" data-tab="settings">Disponibilidad</div>
+            </div>
+            
+            <!-- Calendar Tab -->
+            <div class="tab-content active" id="calendar">
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <h3>Noviembre 2023</h3>
+                        <div class="calendar-actions">
+                            <button class="action-btn btn-secondary">‹</button>
+                            <button class="action-btn btn-secondary">Hoy</button>
+                            <button class="action-btn btn-secondary">›</button>
+                        </div>
+                    </div>
+                    
+                    <div class="calendar-grid">
+                        <div class="calendar-day header">Lun</div>
+                        <div class="calendar-day header">Mar</div>
+                        <div class="calendar-day header">Mié</div>
+                        <div class="calendar-day header">Jue</div>
+                        <div class="calendar-day header">Vie</div>
+                        <div class="calendar-day header">Sáb</div>
+                        <div class="calendar-day header">Dom</div>
+                        
+                        <!-- Calendar days -->
+                        <div class="calendar-day available">1</div>
+                        <div class="calendar-day available">2</div>
+                        <div class="calendar-day booked">3</div>
+                        <div class="calendar-day booked">4</div>
+                        <div class="calendar-day booked">5</div>
+                        <div class="calendar-day available">6</div>
+                        <div class="calendar-day available">7</div>
+                        
+                        <div class="calendar-day available">8</div>
+                        <div class="calendar-day available">9</div>
+                        <div class="calendar-day pending">10</div>
+                        <div class="calendar-day pending">11</div>
+                        <div class="calendar-day available">12</div>
+                        <div class="calendar-day available">13</div>
+                        <div class="calendar-day available">14</div>
+                        
+                        <div class="calendar-day booked">15</div>
+                        <div class="calendar-day booked">16</div>
+                        <div class="calendar-day booked">17</div>
+                        <div class="calendar-day booked">18</div>
+                        <div class="calendar-day booked">19</div>
+                        <div class="calendar-day available">20</div>
+                        <div class="calendar-day available">21</div>
+                        
+                        <div class="calendar-day available">22</div>
+                        <div class="calendar-day available">23</div>
+                        <div class="calendar-day available">24</div>
+                        <div class="calendar-day pending">25</div>
+                        <div class="calendar-day pending">26</div>
+                        <div class="calendar-day available">27</div>
+                        <div class="calendar-day available">28</div>
+                        
+                        <div class="calendar-day available">29</div>
+                        <div class="calendar-day available">30</div>
+                    </div>
+                </div>
+                
+                <div class="legend">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-top: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="width: 20px; height: 20px; background-color: var(--primary); border-radius: 4px;"></div>
+                            <span>Reservado</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="width: 20px; height: 20px; background-color: var(--secondary); border-radius: 4px;"></div>
+                            <span>Pendiente</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="width: 20px; height: 20px; background-color: #f8f9fa; border: 1px solid var(--border); border-radius: 4px;"></div>
+                            <span>Disponible</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reservations Tab -->
+            <div class="tab-content" id="reservations">
+                <div class="reservations-list">
+                    <div class="reservation-item">
+                        <div class="guest-info">
+                            <div class="guest-avatar">ML</div>
+                            <div class="guest-details">
+                                <h4>María López</h4>
+                                <p>2 adultos · 2 niños</p>
+                            </div>
+                        </div>
+                        <div class="dates">15 Nov - 19 Nov 2023</div>
+                        <div class="status confirmed">Confirmada</div>
+                        <div class="price">$450</div>
+                        <div class="actions">
+                            <button class="action-btn btn-primary">Ver</button>
+                        </div>
+                    </div>
+                    
+                    <div class="reservation-item">
+                        <div class="guest-info">
+                            <div class="guest-avatar">CP</div>
+                            <div class="guest-details">
+                                <h4>Carlos Pérez</h4>
+                                <p>2 adultos</p>
+                            </div>
+                        </div>
+                        <div class="dates">25 Nov - 27 Nov 2023</div>
+                        <div class="status pending">Pendiente</div>
+                        <div class="price">$270</div>
+                        <div class="actions">
+                            <button class="action-btn btn-primary">Aceptar</button>
+                            <button class="action-btn btn-secondary">Rechazar</button>
+                        </div>
+                    </div>
+                    
+                    <div class="reservation-item">
+                        <div class="guest-info">
+                            <div class="guest-avatar">AG</div>
+                            <div class="guest-details">
+                                <h4>Ana García</h4>
+                                <p>4 adultos</p>
+                            </div>
+                        </div>
+                        <div class="dates">3 Dic - 8 Dic 2023</div>
+                        <div class="status confirmed">Confirmada</div>
+                        <div class="price">$720</div>
+                        <div class="actions">
+                            <button class="action-btn btn-primary">Ver</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings Tab -->
+            <div class="tab-content" id="settings">
+                <div class="availability-settings">
+                    <h3 style="margin-bottom: 1.5rem;">Configurar Disponibilidad</h3>
+                    
+                    <div class="setting-group">
+                        <label>Precio por noche</label>
+                        <input type="number" value="120" min="0">
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>Mínimo de noches</label>
+                        <input type="number" value="2" min="1">
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>Máximo de huéspedes</label>
+                        <input type="number" value="4" min="1">
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>Check-in</label>
+                        <select>
+                            <option>14:00</option>
+                            <option>15:00</option>
+                            <option selected>16:00</option>
+                            <option>17:00</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>Check-out</label>
+                        <select>
+                            <option>10:00</option>
+                            <option selected>11:00</option>
+                            <option>12:00</option>
+                        </select>
+                    </div>
+                    
+                    <button class="save-btn">Guardar Cambios</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab functionality
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // Remove active class from all tabs and contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Add active class to current tab and content
+                    this.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Calendar navigation (simple example)
+            const calendarActions = document.querySelectorAll('.calendar-actions .action-btn');
+            calendarActions.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    alert('Funcionalidad de navegación del calendario');
+                    // Aquí iría la lógica para cambiar de mes
+                });
+            });
+            
+            // Reservation actions
+            const reservationActions = document.querySelectorAll('.reservations-list .action-btn');
+            reservationActions.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const action = this.textContent;
+                    const reservation = this.closest('.reservation-item');
+                    const guestName = reservation.querySelector('h4').textContent;
+                    
+                    if (action === 'Aceptar') {
+                        if (confirm(`¿Aceptar reserva de ${guestName}?`)) {
+                            alert('Reserva aceptada exitosamente');
+                        }
+                    } else if (action === 'Rechazar') {
+                        if (confirm(`¿Rechazar reserva de ${guestName}?`)) {
+                            alert('Reserva rechazada');
+                        }
+                    } else if (action === 'Ver') {
+                        alert(`Mostrando detalles de la reserva de ${guestName}`);
+                    }
+                });
+            });
+            
+            // Save settings
+            document.querySelector('.save-btn').addEventListener('click', function() {
+                alert('Configuración guardada exitosamente');
+            });
+        });
+    </script>
+</body>
+</html>
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background-color: var(--light);
+            color: var(--dark);
+        }
+        
+        .property-info {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .property-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .property-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            margin-right: 1rem;
+        }
+        
+        .property-details h3 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .property-details p {
+            color: var(--text-light);
+        }
+        
+        .availability-settings {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+        }
+        
+        .setting-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .setting-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .setting-group input,
+        .setting-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+        
+        .save-btn {
+            background-color: var(--success);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                margin-bottom: 1rem;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            
+            .reservation-item {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="var(--primary)">
+                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11V11.99z"/>
+                    </svg>
+                    <h1>HomeSweetHome</h1>
+                </div>
+                
+                <div class="user-info">
+                    <div class="user-avatar">JD</div>
+                    <div>
+                        <div class="user-name">Rodrigo Ruiz</div>
+                        <div class="user-role">Anfitrión</div>
+                    </div>
+                </div>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li><a href="#" class="active"><span>📊</span> <span>Dashboard</span></a></li>
+                <li><a href="#"><span>🏠</span> <span>Mis Propiedades</span></a></li>
+                <li><a href="#"><span>📅</span> <span>Calendario</span></a></li>
+                <li><a href="#"><span>💰</span> <span>Ingresos</span></a></li>
+                <li><a href="#"><span>⭐</span> <span>Reseñas</span></a></li>
+                <li><a href="#"><span>⚙️</span> <span>Configuración</span></a></li>
+                <li><a href="#"><span>🚪</span> <span>Cerrar Sesión</span></a></li>
+            </ul>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <div class="welcome">
+                    <h2>Bienvenido, Rodrigo</h2>
+                    <p>Gestiona tus reservas y propiedades</p>
+                </div>
+                <div class="header-actions">
+                    <button class="action-btn btn-primary">Nueva Reserva</button>
+                </div>
+            </div>
+            
+            <!-- Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">Reservas Activas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">85%</div>
+                    <div class="stat-label">Ocupación</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">4.8</div>
+                    <div class="stat-label">Puntuación</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Pendientes</div>
+                </div>
+            </div>
+            
+            <!-- Property Info -->
+            <div class="property-info">
+                <div class="property-header">
+                    <img src="https://placehold.co/300x200" alt="Modern apartment in city center with balcony and city views" class="property-image">
+                    <div class="property-details">
+                        <h3>Departamento Premium Centro</h3>
+                        <p>Av. Principal 123, Ciudad</p>
+                        <p>4 huéspedes · 2 habitaciones · 1 baño</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tabs -->
+            <div class="tabs">
+                <div class="tab active" data-tab="calendar">Calendario</div>
+                <div class="tab" data-tab="reservations">Reservas</div>
+                <div class="tab" data-tab="settings">Disponibilidad</div>
+            </div>
+            
+            <!-- Calendar Tab -->
+            <div class="tab-content active" id="calendar">
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <h3>Noviembre 2023</h3>
+                        <div class="calendar-actions">
+                            <button class="action-btn btn-secondary">‹</button>
+                            <button class="action-btn btn-secondary">Hoy</button>
+                            <button class="action-btn btn-secondary">›</button>
+                        </div>
+                    </div>
+                    
+                    <div class="calendar-grid">
+                        <div class="calendar-day header">Lun</div>
+                        <div class="calendar-day header">Mar</div>
+                        <div class="calendar-day header">Mié</div>
+                        <div class="calendar-day header">Jue</div>
+                        <div class="calendar-day header">Vie</div>
+                        <div class="calendar-day header">Sáb</div>
+                        <div class="calendar-day header">Dom</div>
+                        
+                        <!-- Calendar days -->
+                        <div class="calendar-day available">1</div>
+                        <div class="calendar-day available">2</div>
+                        <div class="calendar-day booked">3</div>
+                        <div class="calendar-day booked">4</div>
+                        <div class="calendar-day booked">5</div>
+                        <div class="calendar-day available">6</div>
+                        <div class="calendar-day available">7</div>
+                        
+                        <div class="calendar-day available">8</div>
+                        <div class="calendar-day available">9</div>
+                        <div class="calendar-day pending">10</div>
+                        <div class="calendar-day pending">11</div>
+                        <div class="calendar-day available">12</div>
+                        <div class="calendar-day available">13</div>
+                        <div class="calendar-day available">14</div>
+                        
+                        <div class="calendar-day booked">15</div>
+                        <div class="calendar-day booked">16</div>
+                        <div class="calendar-day booked">17</div>
+                        <div class="calendar-day booked">18</div>
+                        <div class="calendar-day booked">19</div>
+                        <div class="calendar-day available">20</div>
+                        <div class="calendar-day available">21</div>
+                        
+                        <div class="calendar-day available">22</div>
+                        <div class="calendar-day available">23</div>
+                        <div class="calendar-day available">24</div>
+                        <div class="calendar-day pending">25</div>
+                        <div class="calendar-day pending">26</div>
+                        <div class="calendar-day available">27</div>
+                        <div class="calendar-day available">28</div>
+                        
+                        <div class="calendar-day available">29</div>
+                        <div class="calendar-day available">30</div>
+                    </div>
+                </div>
+                
+                <div class="legend">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-top: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="width: 20px; height: 20px; background-color: var(--primary); border-radius: 4px;"></div>
+                            <span>Reservado</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="width: 20px; height: 20px; background-color: var(--secondary); border-radius: 4px;"></div>
+                            <span>Pendiente</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="width: 20px; height: 20px; background-color: #f8f9fa; border: 1px solid var(--border); border-radius: 4px;"></div>
+                            <span>Disponible</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reservations Tab -->
+            <div class="tab-content" id="reservations">
+                <div class="reservations-list">
+                    <div class="reservation-item">
+                        <div class="guest-info">
+                            <div class="guest-avatar">ML</div>
+                            <div class="guest-details">
+                                <h4>María López</h4>
+                                <p>2 adultos · 2 niños</p>
+                            </div>
+                        </div>
+                        <div class="dates">15 Nov - 19 Nov 2023</div>
+                        <div class="status confirmed">Confirmada</div>
+                        <div class="price">$450</div>
+                        <div class="actions">
+                            <button class="action-btn btn-primary">Ver</button>
+                        </div>
+                    </div>
+                    
+                    <div class="reservation-item">
+                        <div class="guest-info">
+                            <div class="guest-avatar">CP</div>
+                            <div class="guest-details">
+                                <h4>Carlos Pérez</h4>
+                                <p>2 adultos</p>
+                            </div>
+                        </div>
+                        <div class="dates">25 Nov - 27 Nov 2023</div>
+                        <div class="status pending">Pendiente</div>
+                        <div class="price">$270</div>
+                        <div class="actions">
+                            <button class="action-btn btn-primary">Aceptar</button>
+                            <button class="action-btn btn-secondary">Rechazar</button>
+                        </div>
+                    </div>
+                    
+                    <div class="reservation-item">
+                        <div class="guest-info">
+                            <div class="guest-avatar">AG</div>
+                            <div class="guest-details">
+                                <h4>Ana García</h4>
+                                <p>4 adultos</p>
+                            </div>
+                        </div>
+                        <div class="dates">3 Dic - 8 Dic 2023</div>
+                        <div class="status confirmed">Confirmada</div>
+                        <div class="price">$720</div>
+                        <div class="actions">
+                            <button class="action-btn btn-primary">Ver</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings Tab -->
+            <div class="tab-content" id="settings">
+                <div class="availability-settings">
+                    <h3 style="margin-bottom: 1.5rem;">Configurar Disponibilidad</h3>
+                    
+                    <div class="setting-group">
+                        <label>Precio por noche</label>
+                        <input type="number" value="120" min="0">
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>Mínimo de noches</label>
+                        <input type="number" value="2" min="1">
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>Máximo de huéspedes</label>
+                        <input type="number" value="4" min="1">
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>Check-in</label>
+                        <select>
+                            <option>14:00</option>
+                            <option>15:00</option>
+                            <option selected>16:00</option>
+                            <option>17:00</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>Check-out</label>
+                        <select>
+                            <option>10:00</option>
+                            <option selected>11:00</option>
+                            <option>12:00</option>
+                        </select>
+                    </div>
+                    
+                    <button class="save-btn">Guardar Cambios</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab functionality
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // Remove active class from all tabs and contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Add active class to current tab and content
+                    this.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Calendar navigation (simple example)
+            const calendarActions = document.querySelectorAll('.calendar-actions .action-btn');
+            calendarActions.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    alert('Funcionalidad de navegación del calendario');
+                    // Aquí iría la lógica para cambiar de mes
+                });
+            });
+            
+            // Reservation actions
+            const reservationActions = document.querySelectorAll('.reservations-list .action-btn');
+            reservationActions.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const action = this.textContent;
+                    const reservation = this.closest('.reservation-item');
+                    const guestName = reservation.querySelector('h4').textContent;
+                    
+                    if (action === 'Aceptar') {
+                        if (confirm(`¿Aceptar reserva de ${guestName}?`)) {
+                            alert('Reserva aceptada exitosamente');
+                        }
+                    } else if (action === 'Rechazar') {
+                        if (confirm(`¿Rechazar reserva de ${guestName}?`)) {
+                            alert('Reserva rechazada');
+                        }
+                    } else if (action === 'Ver') {
+                        alert(`Mostrando detalles de la reserva de ${guestName}`);
+                    }
+                });
+            });
+            
+            // Save settings
+            document.querySelector('.save-btn').addEventListener('click', function() {
+                alert('Configuración guardada exitosamente');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HomeSweetHome | Confirmar Reserva</title>
+    <link rel="stylesheet" href="reservar.css">
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <div class="logo">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="var(--primary)">
+                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11V11.99z"/>
+                </svg>
+                <h1>HomeSweetHome</h1>
+            </div>
+        </div>
+    </header>
+    
+    <div class="main-container">
+        <div class="property-section">
+            <div class="property-header">
+                <h2 class="property-title">Encantadora Casa frente al Mar</h2>
+                <div class="property-location">
+                    <span>📍 Playa del Carmen, Quintana Roo</span>
+                </div>
+            </div>
+            
+            <div class="property-images">
+                <div class="main-image" style="background-image: url('https://placehold.co/800x600')"></div>
+                <div class="secondary-images">
+                    <div class="secondary-image" style="background-image: url('https://placehold.co/400x300')"></div>
+                    <div class="secondary-image" style="background-image: url('https://placehold.co/400x300')"></div>
+                </div>
+            </div>
+            
+            <div class="amenities">
+                <h3 class="section-title">Comodidades</h3>
+                <div class="amenities-grid">
+                    <div class="amenity-item">
+                        <span class="amenity-icon">🏊‍♂️</span>
+                        <span>Piscina privada</span>
+                    </div>
+                    <div class="amenity-item">
+                        <span class="amenity-icon">🌊</span>
+                        <span>Vista al mar</span>
+                    </div>
+                    <div class="amenity-item">
+                        <span class="amenity-icon">🅿️</span>
+                        <span>Estacionamiento</span>
+                    </div>
+                    <div class="amenity-item">
+                        <span class="amenity-icon">🍳</span>
+                        <span>Cocina completa</span>
+                    </div>
+                    <div class="amenity-item">
+                        <span class="amenity-icon">📶</span>
+                        <span>Wi-Fi rápido</span>
+                    </div>
+                    <div class="amenity-item">
+                        <span class="amenity-icon">🐾</span>
+                        <span>Mascotas permitidas</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="host-info">
+                <div class="host-avatar" style="background-image: url('https://placehold.co/100x100')"></div>
+                <div class="host-details">
+                    <h4>Ana Martínez</h4>
+                    <p>Anfitriona Superhost · 4.95 ⭐ (128 reseñas)</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="reservation-section">
+            <div class="reservation-details">
+                <h3 class="section-title">Tu Reserva</h3>
+                
+                <div class="detail-card">
+                    <h4 class="detail-title">Detalles de la estadía</h4>
+                    <div class="date-grid">
+                        <div class="date-field">
+                            <label>Llegada</label>
+                            <input type="date" id="checkin-date" value="2024-01-15">
+                        </div>
+                        <div class="date-field">
+                            <label>Salida</label>
+                            <input type="date" id="checkout-date" value="2024-01-20">
+                        </div>
+                    </div>
+                    
+                    <div class="guests-field">
+                        <label>Huéspedes</label>
+                        <select id="guests">
+                            <option value="1">1 huésped</option>
+                            <option value="2" selected>2 huéspedes</option>
+                            <option value="3">3 huéspedes</option>
+                            <option value="4">4 huéspedes</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="price-summary">
+                    <h4 class="detail-title">Resumen de precios</h4>
+                    <div class="price-item">
+                        <span>$150 x 5 noches</span>
+                        <span>$750</span>
+                    </div>
+                    <div class="price-item">
+                        <span>Limpieza</span>
+                        <span>$50</span>
+                    </div>
+                    <div class="price-item">
+                        <span>Tarifa de servicio</span>
+                        <span>$45</span>
+                    </div>
+                    <div class="price-total">
+                        <span>Total</span>
+                        <span>$845</span>
+                    </div>
+                </div>
+                
+                <div class="guest-info">
+                    <h4 class="detail-title">Información del huésped</h4>
+                    <div class="form-group">
+                        <label>Nombre completo</label>
+                        <input type="text" placeholder="Ingresa tu nombre completo">
+                    </div>
+                    <div class="form-group">
+                        <label>Correo electrónico</label>
+                        <input type="email" placeholder="tu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="tel" placeholder="+52 123 456 7890">
+                    </div>
+                </div>
+                
+                <button class="btn-primary" id="confirm-btn">Confirmar Reserva</button>
+                
+                <div class="success-message" id="success-message">
+                    ¡Reserva confirmada! Te hemos enviado los detalles por correo electrónico.
+                </div>
+                
+                <div class="policy-section">
+                    <h4 class="policy-title">Política de cancelación</h4>
+                    <p class="policy-text">
+                        Cancelación gratuita hasta 48 horas antes del check-in. 
+                        Reembolso del 50% si cancelas entre 48 y 24 horas antes. 
+                        No hay reembolso si cancelas con menos de 24 horas de anticipación.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const confirmBtn = document.getElementById('confirm-btn');
+            const successMessage = document.getElementById('success-message');
+            
+            confirmBtn.addEventListener('click', function() {
+                // Validación básica
+                const nameInput = document.querySelector('input[type="text"]');
+                const emailInput = document.querySelector('input[type="email"]');
+                const phoneInput = document.querySelector('input[type="tel"]');
+                
+                if (!nameInput.value || !emailInput.value || !phoneInput.value) {
+                    alert('Por favor completa toda la información del huésped');
+                    return;
+                }
+                
+                // Simular confirmación exitosa
+                successMessage.style.display = 'block';
+                confirmBtn.textContent = 'Reserva Confirmada';
+                confirmBtn.style.backgroundColor = 'var(--success)';
+                confirmBtn.disabled = true;
+                
+                // Scroll to success message
+                successMessage.scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            // Calcular total automáticamente basado en fechas
+            const checkinInput = document.getElementById('checkin-date');
+            const checkoutInput = document.getElementById('checkout-date');
+            const priceItems = document.querySelectorAll('.price-item');
+            
+            function calculateTotal() {
+                const checkin = new Date(checkinInput.value);
+                const checkout = new Date(checkoutInput.value);
+                
+                if (checkin && checkout && checkout > checkin) {
+                    const nights = Math.ceil((checkout - checkin) / (1000 * 60 * 60 * 24));
+                    const nightlyRate = 150;
+                    const cleaningFee = 50;
+                    const serviceFee = 45;
+                    
+                    const totalNights = nightlyRate * nights;
+                    const total = totalNights + cleaningFee + serviceFee;
+                    
+                    // Actualizar precios
+                    priceItems[0].innerHTML = `<span>$${nightlyRate} x ${nights} noches</span><span>$${totalNights}</span>`;
+                    document.querySelector('.price-total span:last-child').textContent = `$${total}`;
+                }
+            }
+            
+            checkinInput.addEventListener('change', calculateTotal);
+            checkoutInput.addEventListener('change', calculateTotal);
+        });
+    </script>
+</body>
+</html>
+            border-top: 2px solid var(--dark);
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+        
+        .guest-info {
+            margin-top: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            width: 100%;
+            padding: 1rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 1.5rem;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .policy-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--light);
+            border-radius: 8px;
+        }
+        
+        .policy-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+        
+        .policy-text {
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .amenities {
+            margin-top: 2rem;
+        }
+        
+        .amenities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .amenity-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            background: var(--light);
+            border-radius: 6px;
+        }
+        
+        .amenity-icon {
+            margin-right: 0.75rem;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--dark);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .host-info {
+            display: flex;
+            align-items: center;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--light);
+            border-radius: 8px;
+        }
+        
+        .host-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-right: 1rem;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .host-details h4 {
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+        
+        .host-details p {
+            color: var(--text-light);
+        }
+        
+        .success-message {
+            display: none;
+            background: var(--success);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <div class="logo">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="var(--primary)">
+                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11V11.99z"/>
+                </svg>
+                <h1>HomeSweetHome</h1>
+            </div>
+        </div>
+    </header>
+    
+    <div class="main-container">
+        <div class="property-section">
+            <div class="property-header">
+                <h2 class="property-title">Encantadora Casa frente al Mar</h2>
+                <div class="property-location">
+                    <span>📍 Playa del Carmen, Quintana Roo</span>
+                </div>
+            </div>
+            
+            <div class="property-images">
+                <div class="main-image" style="background-image: url('https://placehold.co/800x600')"></div>
+                <div class="secondary-images">
+                    <div class="secondary-image" style="background-image: url('https://placehold.co/400x300')"></div>
+                    <div class="secondary-image" style="background-image: url('https://placehold.co/400x300')"></div>
+                </div>
+            </div>
+            
+            <div class="amenities">
+                <h3 class="section-title">Comodidades</h3>
+                <div class="amenities-grid">
+                    <div class="amenity-item">
+                        <span class="amenity-icon">🏊‍♂️</span>
+                        <span>Piscina privada</span>
+                    </div>
+                    <div class="amenity-item">
+                        <span class="amenity-icon">🌊</span>
+                        <span>Vista al mar</span>
+                    </div>
+                    <div class="amenity-item">
+                        <span class="amenity-icon">🅿️</span>
+                        <span>Estacionamiento</span>
+                    </div>
+                    <div class="amenity-item">
+                        <span class="amenity-icon">🍳</span>
+                        <span>Cocina completa</span>
+                    </div>
+                    <div class="amenity-item">
+                        <span class="amenity-icon">📶</span>
+                        <span>Wi-Fi rápido</span>
+                    </div>
+                    <div class="amenity-item">
+                        <span class="amenity-icon">🐾</span>
+                        <span>Mascotas permitidas</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="host-info">
+                <div class="host-avatar" style="background-image: url('https://placehold.co/100x100')"></div>
+                <div class="host-details">
+                    <h4>Ana Martínez</h4>
+                    <p>Anfitriona Superhost · 4.95 ⭐ (128 reseñas)</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="reservation-section">
+            <div class="reservation-details">
+                <h3 class="section-title">Tu Reserva</h3>
+                
+                <div class="detail-card">
+                    <h4 class="detail-title">Detalles de la estadía</h4>
+                    <div class="date-grid">
+                        <div class="date-field">
+                            <label>Llegada</label>
+                            <input type="date" id="checkin-date" value="2024-01-15">
+                        </div>
+                        <div class="date-field">
+                            <label>Salida</label>
+                            <input type="date" id="checkout-date" value="2024-01-20">
+                        </div>
+                    </div>
+                    
+                    <div class="guests-field">
+                        <label>Huéspedes</label>
+                        <select id="guests">
+                            <option value="1">1 huésped</option>
+                            <option value="2" selected>2 huéspedes</option>
+                            <option value="3">3 huéspedes</option>
+                            <option value="4">4 huéspedes</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="price-summary">
+                    <h4 class="detail-title">Resumen de precios</h4>
+                    <div class="price-item">
+                        <span>$150 x 5 noches</span>
+                        <span>$750</span>
+                    </div>
+                    <div class="price-item">
+                        <span>Limpieza</span>
+                        <span>$50</span>
+                    </div>
+                    <div class="price-item">
+                        <span>Tarifa de servicio</span>
+                        <span>$45</span>
+                    </div>
+                    <div class="price-total">
+                        <span>Total</span>
+                        <span>$845</span>
+                    </div>
+                </div>
+                
+                <div class="guest-info">
+                    <h4 class="detail-title">Información del huésped</h4>
+                    <div class="form-group">
+                        <label>Nombre completo</label>
+                        <input type="text" placeholder="Ingresa tu nombre completo">
+                    </div>
+                    <div class="form-group">
+                        <label>Correo electrónico</label>
+                        <input type="email" placeholder="tu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="tel" placeholder="+52 123 456 7890">
+                    </div>
+                </div>
+                
+                <button class="btn-primary" id="confirm-btn">Confirmar Reserva</button>
+                
+                <div class="success-message" id="success-message">
+                    ¡Reserva confirmada! Te hemos enviado los detalles por correo electrónico.
+                </div>
+                
+                <div class="policy-section">
+                    <h4 class="policy-title">Política de cancelación</h4>
+                    <p class="policy-text">
+                        Cancelación gratuita hasta 48 horas antes del check-in. 
+                        Reembolso del 50% si cancelas entre 48 y 24 horas antes. 
+                        No hay reembolso si cancelas con menos de 24 horas de anticipación.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const confirmBtn = document.getElementById('confirm-btn');
+            const successMessage = document.getElementById('success-message');
+            
+            confirmBtn.addEventListener('click', function() {
+                // Validación básica
+                const nameInput = document.querySelector('input[type="text"]');
+                const emailInput = document.querySelector('input[type="email"]');
+                const phoneInput = document.querySelector('input[type="tel"]');
+                
+                if (!nameInput.value || !emailInput.value || !phoneInput.value) {
+                    alert('Por favor completa toda la información del huésped');
+                    return;
+                }
+                
+                // Simular confirmación exitosa
+                successMessage.style.display = 'block';
+                confirmBtn.textContent = 'Reserva Confirmada';
+                confirmBtn.style.backgroundColor = 'var(--success)';
+                confirmBtn.disabled = true;
+                
+                // Scroll to success message
+                successMessage.scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            // Calcular total automáticamente basado en fechas
+            const checkinInput = document.getElementById('checkin-date');
+            const checkoutInput = document.getElementById('checkout-date');
+            const priceItems = document.querySelectorAll('.price-item');
+            
+            function calculateTotal() {
+                const checkin = new Date(checkinInput.value);
+                const checkout = new Date(checkoutInput.value);
+                
+                if (checkin && checkout && checkout > checkin) {
+                    const nights = Math.ceil((checkout - checkin) / (1000 * 60 * 60 * 24));
+                    const nightlyRate = 150;
+                    const cleaningFee = 50;
+                    const serviceFee = 45;
+                    
+                    const totalNights = nightlyRate * nights;
+                    const total = totalNights + cleaningFee + serviceFee;
+                    
+                    // Actualizar precios
+                    priceItems[0].innerHTML = `<span>$${nightlyRate} x ${nights} noches</span><span>$${totalNights}</span>`;
+                    document.querySelector('.price-total span:last-child').textContent = `$${total}`;
+                }
+            }
+            
+            checkinInput.addEventListener('change', calculateTotal);
+            checkoutInput.addEventListener('change', calculateTotal);
+        });
+    </script>
+</body>
+</html>
