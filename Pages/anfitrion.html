@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>HomeSweetHome | Panel de Anfitrión</title>
     <link rel="stylesheet" href="../Styles/anfitrion.css">
 </head>
@@ -266,5 +266,16 @@
     </div>
 
     <script src="../Scripts/Anfitrion.js"></script>
+    <script>
+        document.querySelectorAll('.sidebar-menu li a').forEach(function(link) {
+            if (link.textContent.includes('Cerrar Sesión')) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    localStorage.removeItem('usuarioName');
+                    window.location.href = 'login.html';
+                })
+            }
+        })
+    </script>
 </body>
 </html>

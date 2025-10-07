@@ -9,7 +9,7 @@
 </head>
 <body>
     <header>
-        <div class="navbar">
+        <div class="navbar" id="navbar">
             <div class="logo">
                 <svg class="logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="var(--primary)">
                     <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11V11.99z"/>
@@ -22,10 +22,7 @@
                 <input type="text" placeholder="¿A dónde vas?">
             </div>
             
-            <div class="user-menu">
-                <a href="#">Conviértete en anfitrión</a>
-                <a href="login.html" class="btn">Iniciar sesión</a>
-            </div>
+            <button id="logout-btn">Cerrar sesión</button>
         </div>
     </header>
     
@@ -197,6 +194,26 @@
     </footer>
     
     <script src="../Scripts/Home.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const usuarioNombre = localStorage.getItem('usuarioName');
+            const nav = document.getElementById('navbar'); // Asume que tienes un navbar
+
+            if (usuarioNombre) {
+                nav.innerHTML = `<button id="usuario-btn">${usuarioNombre}</button>`;
+                document.getElementById('usuario-btn').onclick = function() {
+                    window.location.href = 'anfitrion.html';
+                };
+            } else {
+                nav.innerHTML = `<button onclick="window.location.href='login.html'">Iniciar Sesión</button>`;
+            }
+        });
+</script>
+    <script>
+        document.getElementById('logout-btn').onclick = function() {
+            localStorage.removeItem('usuarioName');
+            window.location.href = 'login.html';
+        }
+    </script>
 </body>
-</html>
 </html>
