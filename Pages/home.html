@@ -40,16 +40,19 @@
                     <div class="search-field">
                         <label for="location">Ubicación</label>
                         <input type="text" id="location" placeholder="¿A dónde vas?">
+                        <div class="error-message" id="location"></div>
                     </div>
                     
                     <div class="search-field">
                         <label for="checkin">Llegada</label>
                         <input type="date" id="checkin">
+                        <div class="error-message" id="checkin"></div>
                     </div>
                     
                     <div class="search-field">
                         <label for="checkout">Salida</label>
                         <input type="date" id="checkout">
+                        <div class="error-message" id="checkout"></div>
                     </div>
                     
                     <div class="search-field">
@@ -60,6 +63,7 @@
                             <option value="3">3 huéspedes</option>
                             <option value="4+">4+ huéspedes</option>
                         </select>
+                        <div class="error-message" id="guests"></div>
                     </div>
                 </div>
                 
@@ -200,7 +204,7 @@
             const nav = document.getElementById('navbar'); // Asume que tienes un navbar
 
             if (usuarioNombre) {
-                nav.innerHTML = `<button id="usuario-btn">${usuarioNombre}</button>`;
+                nav.innerHTML = `<button class="search-btn-demo" id="usuario-btn">${usuarioNombre}</button>`;
                 document.getElementById('usuario-btn').onclick = function() {
                     window.location.href = 'anfitrion.html';
                 };

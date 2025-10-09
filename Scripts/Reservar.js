@@ -65,4 +65,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // --- Inicializar cálculo al cargar ---
     calculateTotal();
+
+    //--boton que redirecciona de reserva a home
+    const botonReservar = document.getElementById('btn-home')
+    function redirectHome() {
+        window.location.href = 'home.html';
+    }
+    botonReservar.addEventListener('click', redirectHome)
 });

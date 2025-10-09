@@ -42,16 +42,73 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Extra: Si alguna vez decides usar el campo de búsqueda, puedes añadir un listener para hacer búsquedas:
     const searchBtn = document.querySelector('.search-btn');
-    if (searchBtn) {
-        searchBtn.addEventListener('click', function() {
-            const location = document.querySelector('#location').value;
-            const checkin = document.querySelector('#checkin').value;
-            const checkout = document.querySelector('#checkout').value;
-            const guests = document.querySelector('#guests').value;
+if (searchBtn) {
+    searchBtn.addEventListener('click', function () {
+        const location = document.querySelector('#location').value.trim();
+        const checkin = document.querySelector('#checkin').value.trim();
+        const checkout = document.querySelector('#checkout').value.trim();
+        const guests = document.querySelector('#guests').value.trim();
 
-            // Puedes redirigir a una página de resultados pasando estos parámetros como query string
-            // Ejemplo:
-            window.location.href = `resultados.html?location=${encodeURIComponent(location)}&checkin=${checkin}&checkout=${checkout}&guests=${guests}`;
-        });
+        // Resetear errores
+        resetSearchErrors();
+
+        // Validación
+        if (!location && (!checkin || !checkout || !guests)) {
+            showSearchError('location', 'Por favor ingresa una ubicación');
+            return;
+        }
+
+        if (location && !checkin && !checkout && !guests) {
+            // Solo ubicación: ir a reservar.html
+            window.location.href = `reservar.html`;
+            return;
+        }
+
+        let isValid = true;
+
+        if (!location) {
+            showSearchError('location', 'Por favor ingresa una ubicación');
+            isValid = false;
+        }
+
+        if (!checkin) {
+            showSearchError('checkin', 'Por favor selecciona una fecha de llegada');
+            isValid = false;
+        }
+
+        if (!checkout) {
+            showSearchError('checkout', 'Por favor selecciona una fecha de salida');
+            isValid = false;
+        }
+
+        if (!guests) {
+            showSearchError('guests', 'Por favor selecciona la cantidad de huéspedes');
+            isValid = false;
+        }
+
+        if (isValid) {
+            // Todos los campos están completos: ir a resultados.html
+            //window.location.href = `resultados.html?location=${encodeURIComponent(location)}&checkin=${checkin}&checkout=${checkout}&guests=${guests}`;
+            window.location.href = 'reservar.html'
+        }
+    });
+}
+
+// Función para mostrar error
+function showSearchError(fieldId, message) {
+    const errorElement = document.getElementById(`${fieldId}-error`);
+    if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
     }
+}
+
+// Función para ocultar todos los errores
+function resetSearchErrors() {
+    const errorMessages = document.querySelectorAll('.error-message');
+    errorMessages.forEach(el => {
+        el.textContent = '';
+        el.style.display = 'none';
+    });
+}
 });

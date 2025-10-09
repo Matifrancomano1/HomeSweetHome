@@ -36,6 +36,12 @@ header {
     margin: 0 auto;
 }
 
+#btn-home{
+    background-color: transparent;
+    border: none;
+    
+}
+
 .logo {
     display: flex;
     align-items: center;

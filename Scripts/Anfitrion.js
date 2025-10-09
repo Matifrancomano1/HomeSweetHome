@@ -15,6 +15,23 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    //creacion de boton que redirecciona a Home
+    const boton = document.getElementById('boton-home')
+    
+    function redirectHome() {
+        window.location.href = 'home.html';
+    }
+
+    boton.addEventListener('click', redirectHome)
+
+    //-- boton que redirecciona a Reserva
+    const botonReserva = document.getElementById('btn-reserva')
+    function redirectReserva() {
+        window.location.href = 'reservar.html';
+    }
+    botonReserva.addEventListener('click', redirectReserva)
+
+
     // --- CALENDAR NAVIGATION ---
     const calendarHeader = document.querySelector('.calendar-header h3');
     const calendarActions = document.querySelectorAll('.calendar-actions .action-btn');

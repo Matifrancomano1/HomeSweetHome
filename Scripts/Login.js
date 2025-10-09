@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isValid) {
 
             if (email === testUser.email && password === testUser.password) {
-                localStorage.setItem('usuarioName', 'Demo Usuario')
+                localStorage.setItem('usuarioName', 'Usuario')
                 alert('Inicio de sesión exitoso! Redirigiendo...');
                 window.location.href = 'home.html';
             } else {
