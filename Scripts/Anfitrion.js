@@ -15,21 +15,25 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    //creacion de boton que redirecciona a Home
-    const boton = document.getElementById('boton-home')
-    
+    // Creación de función para redireccionar a Home
+    const botonHome = document.getElementById('boton-home');
     function redirectHome() {
         window.location.href = 'home.html';
     }
-
-    boton.addEventListener('click', redirectHome)
-
-    //-- boton que redirecciona a Reserva
-    const botonReserva = document.getElementById('btn-reserva')
-    function redirectReserva() {
-        window.location.href = 'reservar.html';
+    if (botonHome) {
+        botonHome.addEventListener('click', redirectHome);
     }
-    botonReserva.addEventListener('click', redirectReserva)
+
+    // -- Botón que redirecciona a AdminReser.html (Nuevo Alojamiento)
+    document.addEventListener('DOMContentLoaded', () => {
+  const btnReserva = document.getElementById('btn-reserva');
+  if (btnReserva) {
+    btnReserva.addEventListener('click', () => {
+      window.location.href = 'AdminReser.html'; // Ajusta la ruta si es diferente
+    });
+  }
+});
+
 
 
     // --- CALENDAR NAVIGATION ---
@@ -112,25 +116,28 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // --- SAVE SETTINGS ---
-    document.querySelector('.save-btn').addEventListener('click', function () {
-        const inputs = document.querySelectorAll('.availability-settings input');
-        const selects = document.querySelectorAll('.availability-settings select');
+    const saveBtn = document.querySelector('.save-btn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function () {
+            const inputs = document.querySelectorAll('.availability-settings input');
+            const selects = document.querySelectorAll('.availability-settings select');
 
-        const price = inputs[0].value;
-        const minNights = inputs[1].value;
-        const maxGuests = inputs[2].value;
-        const checkIn = selects[0].value;
-        const checkOut = selects[1].value;
+            const price = inputs[0].value;
+            const minNights = inputs[1].value;
+            const maxGuests = inputs[2].value;
+            const checkIn = selects[0].value;
+            const checkOut = selects[1].value;
 
-        alert(
-            `Configuración guardada:\n` +
-            `Precio por noche: $${price}\n` +
-            `Mínimo de noches: ${minNights}\n` +
-            `Máximo de huéspedes: ${maxGuests}\n` +
-            `Check-in: ${checkIn}\n` +
-            `Check-out: ${checkOut}`
-        );
+            alert(
+                `Configuración guardada:\n` +
+                `Precio por noche: $${price}\n` +
+                `Mínimo de noches: ${minNights}\n` +
+                `Máximo de huéspedes: ${maxGuests}\n` +
+                `Check-in: ${checkIn}\n` +
+                `Check-out: ${checkOut}`
+            );
 
-        // En un sistema real, aquí enviarías los datos a tu backend
-    });
+            // En un sistema real, aquí enviarías los datos a tu backend
+        });
+    }
 });

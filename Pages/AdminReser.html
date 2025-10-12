@@ -1,0 +1,103 @@
+<!--Codigo que hace la estructura de la pagina administrar reserva y propiedad del lado del anfitrion-->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HomeSweetHome | Nuevo Alojamiento</title>
+  <link rel="stylesheet" href="../Styles/AdminReser.css">
+</head>
+<body>
+  <div class="dashboard">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <button onclick="window.location.href='anfitrion.html'">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="var(--primary)">
+              <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11V11.99z"/>
+            </svg>
+            <h1>HomeSweetHome</h1>
+          </button>
+        </div>
+        <div class="user-info">
+          <div class="user-avatar">Us</div>
+          <div>
+            <div class="user-name">Usuario</div>
+            <div class="user-role">Anfitrión</div>
+          </div>
+        </div>
+      </div>
+      <ul class="sidebar-menu">
+        <li><a href="anfitrion.html"><span>📊</span> Dashboard</a></li>
+        <li><a href="#" class="active"><span>➕</span> Agregar Alojamiento</a></li>
+        <li><a href="#"><span>🚪</span> Cerrar Sesión</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="header">
+        <h2>Agregar Nuevo Alojamiento</h2>
+        <p>Completa los datos del alojamiento para publicarlo.</p>
+      </div>
+
+      <form class="new-property-form">
+        <div class="form-group">
+          <label for="nombre">Nombre del alojamiento</label>
+          <input type="text" id="nombre" placeholder="Ej. Departamento en el centro" required>
+        </div>
+
+        <div class="form-group">
+          <label for="ubicacion">Ubicación</label>
+          <input type="text" id="ubicacion" placeholder="Ej. Av. Principal 123, Ciudad" required>
+        </div>
+
+        <div class="form-group">
+          <label for="descripcion">Descripción</label>
+          <textarea id="descripcion" rows="4" placeholder="Describe tu alojamiento..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="comodidades">Comodidades (separadas por coma)</label>
+          <input type="text" id="comodidades" placeholder="Wi-Fi, Piscina, Estacionamiento">
+        </div>
+
+        <div class="form-group">
+          <label for="precio">Precio por noche ($)</label>
+          <input type="number" id="precio" min="0" required>
+        </div>
+
+        <div class="form-group">
+          <label for="huespedes">Capacidad de huéspedes</label>
+          <input type="number" id="huespedes" min="1" required>
+        </div>
+
+        <div class="form-group date-range">
+          <label>Fechas disponibles</label>
+          <div style="display: flex; gap: 1rem;">
+            <div>
+              <label for="checkin">Check-in</label>
+              <input type="date" id="checkin" required>
+            </div>
+            <div>
+              <label for="checkout">Check-out</label>
+              <input type="date" id="checkout" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="imagenes">Imágenes (URL)</label>
+          <input type="url" id="imagenes" placeholder="https://ejemplo.com/imagen.jpg">
+        </div>
+
+        <button type="submit" class="btn-primary">Publicar Alojamiento</button>
+      </form>
+    </main>
+  </div>
+  <script src="../Scripts/AdminReser.js"></script>
+</body>
+</html>
