@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
 
+    
+
     // Interactividad para las tarjetas de categorías
     const categoryCards = document.querySelectorAll('.category-card');
     categoryCards.forEach(card => {

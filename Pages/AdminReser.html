@@ -15,13 +15,13 @@
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="logo">
-          <button onclick="window.location.href='anfitrion.html'">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="var(--primary)">
-              <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11V11.99z"/>
-            </svg>
-            <h1>HomeSweetHome</h1>
+          <button id="boton-home" onclick="redirectHome()">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="var(--primary)">
+                  <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11V11.99z"/>
+              </svg>
+              <h1>HomeSweetHome</h1>
           </button>
-        </div>
+      </div>
         <div class="user-info">
           <div class="user-avatar">Us</div>
           <div>
@@ -30,11 +30,17 @@
           </div>
         </div>
       </div>
+
       <ul class="sidebar-menu">
-        <li><a href="anfitrion.html"><span>📊</span> Dashboard</a></li>
-        <li><a href="#" class="active"><span>➕</span> Agregar Alojamiento</a></li>
-        <li><a href="#"><span>🚪</span> Cerrar Sesión</a></li>
-      </ul>
+        <li><a href="anfitrion.html" ><span>📊</span> <span>Dashboard</span></a></li>
+        <li><a href="agregarChoza.html" class="active"><span>➕</span> <span>Agregar Alojamiento</span></a></li>
+        <li><a href="#"><span>🏠</span> <span>Mis Propiedades</span></a></li>
+        <li><a href="#"><span>📅</span> <span>Calendario</span></a></li>
+        <li><a href="#"><span>💰</span> <span>Ingresos</span></a></li>
+        <li><a href="#"><span>⭐</span> <span>Reseñas</span></a></li>
+        <li><a href="#"><span>⚙️</span> <span>Configuración</span></a></li>
+        <li><a href="#" id="logout-menu"><span>🚪</span> <span>Cerrar Sesión</span></a></li>
+    </ul>
     </aside>
 
     <!-- Main Content -->
@@ -94,10 +100,18 @@
           <input type="url" id="imagenes" placeholder="https://ejemplo.com/imagen.jpg">
         </div>
 
-        <button type="submit" class="btn-primary">Publicar Alojamiento</button>
+        <button type="submit" class="btn btn-primary">Publicar Alojamiento</button>
       </form>
     </main>
   </div>
   <script src="../Scripts/AdminReser.js"></script>
+  <script>
+    document.getElementById('logout-menu').addEventListener('click', function(event) {
+    event.preventDefault();
+    localStorage.removeItem('usuarioName');
+    window.location.href = 'login.html';
+});
+
+  </script>
 </body>
 </html>

@@ -24,15 +24,14 @@ document.addEventListener('DOMContentLoaded', function () {
         botonHome.addEventListener('click', redirectHome);
     }
 
-    // -- Botón que redirecciona a AdminReser.html (Nuevo Alojamiento)
-    document.addEventListener('DOMContentLoaded', () => {
-  const btnReserva = document.getElementById('btn-reserva');
-  if (btnReserva) {
-    btnReserva.addEventListener('click', () => {
-      window.location.href = 'AdminReser.html'; // Ajusta la ruta si es diferente
-    });
-  }
-});
+    // -- Botón que redirecciona a adminReser.html (Nuevo Alojamiento)
+    const btnReserva = document.getElementById('btn-reserva');
+    function redirectAdminReserva() {
+        window.location.href = 'adminReser.html'
+    }
+    if (btnReserva) {
+        btnReserva.addEventListener('click', redirectAdminReserva);
+    }
 
 
 

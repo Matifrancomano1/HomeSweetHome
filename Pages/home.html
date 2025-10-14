@@ -24,7 +24,15 @@
                 <input type="text" placeholder="¿A dónde vas?">
             </div>
             
-            <button id="logout-btn">Cerrar sesión</button>
+            <div class="user-session" id="user-session">
+                <button class="btn" id="logout-btn" style="display: none;">Cerrar sesión</button>
+                <button class="btn btn-primary" id="login-btn" style="display: none;">Iniciar sesión</button>
+                <button class="user-btn search-btn-demo" id="usuario-btn" style="display: none;"></button>
+            </div>
+
+            <!-- <button class="btn" id="logout-btn">Cerrar sesión</button>
+
+            <div id="usuario-area"></div> -->
         </div>
     </header>
     
@@ -42,19 +50,19 @@
                     <div class="search-field">
                         <label for="location">Ubicación</label>
                         <input type="text" id="location" placeholder="¿A dónde vas?">
-                        <div class="error-message" id="location"></div>
+                        <div class="error-message" id="location-error"></div>
                     </div>
                     
                     <div class="search-field">
                         <label for="checkin">Llegada</label>
                         <input type="date" id="checkin">
-                        <div class="error-message" id="checkin"></div>
+                        <div class="error-message" id="checkin-error"></div>
                     </div>
                     
                     <div class="search-field">
                         <label for="checkout">Salida</label>
                         <input type="date" id="checkout">
-                        <div class="error-message" id="checkout"></div>
+                        <div class="error-message" id="checkout-error"></div>
                     </div>
                     
                     <div class="search-field">
@@ -65,7 +73,7 @@
                             <option value="3">3 huéspedes</option>
                             <option value="4+">4+ huéspedes</option>
                         </select>
-                        <div class="error-message" id="guests"></div>
+                        <div class="error-message" id="guests-error"></div>
                     </div>
                 </div>
                 
@@ -201,20 +209,41 @@
     
     <script src="../Scripts/Home.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const usuarioNombre = localStorage.getItem('usuarioName');
-            const nav = document.getElementById('navbar'); // Asume que tienes un navbar
-
+        
+            const logoutBtn = document.getElementById('logout-btn');
+            const loginBtn = document.getElementById('login-btn');
+            const usuarioBtn = document.getElementById('usuario-btn');
+        
             if (usuarioNombre) {
-                nav.innerHTML = `<button class="search-btn-demo" id="usuario-btn">${usuarioNombre}</button>`;
-                document.getElementById('usuario-btn').onclick = function() {
+                // Mostrar botón de usuario y cerrar sesión
+                usuarioBtn.style.display = 'inline-block';
+                usuarioBtn.textContent = usuarioNombre;
+        
+                logoutBtn.style.display = 'inline-block';
+                loginBtn.style.display = 'none';
+        
+                usuarioBtn.onclick = function () {
                     window.location.href = 'anfitrion.html';
                 };
+        
+                logoutBtn.onclick = function () {
+                    localStorage.removeItem('usuarioName');
+                    window.location.href = 'login.html';
+                };
             } else {
-                nav.innerHTML = `<button onclick="window.location.href='login.html'">Iniciar Sesión</button>`;
+                // Mostrar botón de iniciar sesión
+                loginBtn.style.display = 'inline-block';
+                logoutBtn.style.display = 'none';
+                usuarioBtn.style.display = 'none';
+        
+                loginBtn.onclick = function () {
+                    window.location.href = 'login.html';
+                };
             }
         });
-</script>
+        </script>
     <script>
         document.getElementById('logout-btn').onclick = function() {
             localStorage.removeItem('usuarioName');
