@@ -5,11 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
 
-    const testUser = {
-        email: "example@hotmail.com",
-        password: "password123"
-    }
-    
+
     // Cambiar entre tabs de Login y Registro
     loginTab.addEventListener('click', function() {
         loginTab.classList.add('active');
@@ -72,14 +68,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         if (isValid) {
+            const loginData = {
+                email: email,
+                password: password
+            };
 
-            if (email === testUser.email && password === testUser.password) {
-                localStorage.setItem('usuarioName', 'Usuario')
-                alert('Inicio de sesión exitoso! Redirigiendo...');
+            fetch(`${API_BASE_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(loginData),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    // si no da status 2xx, lanza error
+                    throw new Error('Email o contraseña incorrectos');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Guardamos datos en el localstorage
+                localStorage.setItem('jwtToken', data.accessToken) // no me acuerdo si es token o accessToken revisar despues
+                localStorage.setItem('userEmail', data.email);
+                localStorage.setItem('userId', data.id);
+                localStorage.setItem('usuarioName', data.firstName)
+
+                alert('Inicio de sesion exitoso! Redirigiendo...');
                 window.location.href = 'home.html';
-            } else {
-                showError('login-password', 'Usuario o contraseña incorrectos');
-            }
+            })
+            .catch(error => {
+                // error
+                console.error('Error de login:', error);
+                showError('login-password', error.message);
+            })
         }
     }); 
 
@@ -135,17 +157,46 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
 
+        // Validacion de rol
+        if(!role) {
+            showError('reister-role', 'Por favor selecciona un rol');
+            isValid = false;
+        }
+
         if (isValid) {
-            const userData = {
-                firstName,
-                lastName,
-                email,
-                password
+            const registerData = {
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                password: password,
+                role: role
             };
-            console.log('Datos del usuario:', userData);
-            alert('Registro exitoso! Redirigiendo...');
-            // Aquí iría la lógica de redirección
-            // window.location.href = 'dashboard.html';
+
+            fetch(`${API_BASE_URL}/users`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(registerData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw new Error(err.message || 'Error en el registro');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Registro exitoso: ', data);
+                alert('Registro exitoso! Por favor, iniciar sesión.');
+
+                loginTab.click();
+            })
+            .catch(error => {
+                console.error('Error de registro:', error);
+                showError('register-email', 'El correo electronico ya esta en uso');
+            })
         }
     });
 
