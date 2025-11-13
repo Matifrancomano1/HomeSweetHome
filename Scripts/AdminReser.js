@@ -1,4 +1,6 @@
-document.addEventListener('DOMContentLoaded', function() {
+
+
+document.addEventListener('DOMContentLoaded', async function() {
   const form = document.querySelector('.new-property-form');
 
   // Función para mostrar error en un campo
@@ -114,4 +116,42 @@ document.addEventListener('DOMContentLoaded', function() {
     form.reset();
 
   });
+
+  //Datos para enviar al backend
+
+  const alojamiento = {
+    nombre,
+    ubicacion,
+    descripcion,
+    comodidades,
+    precio: Number(precio),
+    huespedes: Number(huespedes),
+    imagenes: imagenes
+  };
+
+  //Llamada a los endpoints
+
+  try {
+    const response = await fetch('http://localhost:8080/api/accomodations',{
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(alojamiento)
+    });
+
+    if (!response.ok) throw new Error ("Error al intentar publicar el alojamiento");
+
+    const data = await response.json();
+    console.log("alojamiento guardado correctamente xd: ", data);
+    alert("Alojamiento publicado exitosamente =) ");
+    window.location.href = "home.html";
+    form.reset();
+    
+    //manejo de errores
+
+  } catch(error) {
+    console.error("Error", error);
+    alert ("HUbo un problema para publicarlo al alojamiento.");
+  }
+
+  
 });

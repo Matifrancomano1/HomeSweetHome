@@ -1,3 +1,5 @@
+
+
 document.addEventListener('DOMContentLoaded', function () {
     const photoUpload = document.getElementById('main-photo-upload');
     const photoInput = document.getElementById('photo-input');

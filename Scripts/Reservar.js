@@ -1,4 +1,6 @@
-document.addEventListener('DOMContentLoaded', function () {
+
+
+document.addEventListener('DOMContentLoaded', async function () {
     const confirmBtn = document.getElementById('confirm-btn');
     const successMessage = document.getElementById('success-message');
 
@@ -16,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const SERVICE_FEE = 45;
 
     // --- CONFIRMAR RESERVA ---
-    confirmBtn.addEventListener('click', function () {
+    confirmBtn.addEventListener('click', async function () {
         const name = nameInput.value.trim();
         const email = emailInput.value.trim();
         const phone = phoneInput.value.trim();
@@ -26,6 +28,46 @@ document.addEventListener('DOMContentLoaded', function () {
             alert('Por favor completa toda la información del huésped.');
             return;
         }
+
+          //Enviar reserva al backend
+
+    const checkIn = checkinInput.value;
+    const checkOut = checkoutInput.value;
+    const totalText = priceTotal.textContent.replace('$', "").trim();
+    const priceTotal = parseFloat(totalText) || 0; //no me valida el priceTotal
+
+    //lo que espera el backend
+
+    const reserva = {
+        guestId: {guestId}, //Id del usuario logueado, verificar por las dudas tony
+
+        accomodationId: {accomodationId}, //lo mismo que arriba gato
+
+        checkIn : checkIn,
+        checkOut: checkOut,
+        priceTotal: priceTotal,
+    };
+
+    try{
+        const response = await fetch('http://localhost:8080/api/reservations', {
+            method: "POST",
+            headers: {"Content-Type": "application/json" },
+            body: JSON.stringify(reserva)
+        });
+
+        if(!response.ok){
+            const text = await response.text();
+            throw new Error ("Error del servidor : ${text}");
+        }
+
+        const data = await response.json();
+        console.log ("Reserva creada =) : ", data);
+        alert ("reserva creada exitosamente wachin ");
+
+    }catch (error){
+        console.error("error para crear la reserva ", error);
+        alert("no se pudo concretar la reserva");
+    }
 
         // Confirmación visual
         successMessage.style.display = 'block';
@@ -72,4 +114,5 @@ document.addEventListener('DOMContentLoaded', function () {
         window.location.href = 'home.html';
     }
     botonReservar.addEventListener('click', redirectHome)
+
 });
