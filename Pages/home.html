@@ -207,48 +207,8 @@
         </div>
     </footer>
     
+    <script src="../config.js"></script>
     <script src="../Scripts/Home.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const usuarioNombre = localStorage.getItem('usuarioName');
-        
-            const logoutBtn = document.getElementById('logout-btn');
-            const loginBtn = document.getElementById('login-btn');
-            const usuarioBtn = document.getElementById('usuario-btn');
-        
-            if (usuarioNombre) {
-                // Mostrar botón de usuario y cerrar sesión
-                usuarioBtn.style.display = 'inline-block';
-                usuarioBtn.textContent = usuarioNombre;
-        
-                logoutBtn.style.display = 'inline-block';
-                loginBtn.style.display = 'none';
-        
-                usuarioBtn.onclick = function () {
-                    window.location.href = 'anfitrion.html';
-                };
-        
-                logoutBtn.onclick = function () {
-                    localStorage.removeItem('usuarioName');
-                    window.location.href = 'login.html';
-                };
-            } else {
-                // Mostrar botón de iniciar sesión
-                loginBtn.style.display = 'inline-block';
-                logoutBtn.style.display = 'none';
-                usuarioBtn.style.display = 'none';
-        
-                loginBtn.onclick = function () {
-                    window.location.href = 'login.html';
-                };
-            }
-        });
-        </script>
-    <script>
-        document.getElementById('logout-btn').onclick = function() {
-            localStorage.removeItem('usuarioName');
-            window.location.href = 'login.html';
-        }
-    </script>
+
 </body>
 </html>
