@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
         propertyGrid.innerHTML = '<p>Cargando alojamientos...</p>';
 
         // Endpoint público, no necesita fetchConToken
-        fetch(`${API_BASE_URL}/api/accomodations`)
+        fetch(`${API_BASE_URL}/accomodations`)
             .then(response => {
                 if (!response.ok) throw new Error('No se pudieron cargar los alojamientos');
                 return response.json();
@@ -106,14 +106,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     const card = document.createElement('div');
                     card.className = 'property-card';
 
-                    // --- INICIO DE LA MODIFICACIÓN ---
-
                     // 1. Determinar la URL de la imagen
                     let imageUrl = 'https://placehold.co/600x400'; // Imagen por defecto
-                    
-                    // Verificamos si el array 'images' existe Y no está vacío
                     if (accomodation.images && accomodation.images.length > 0) {
-                        // Tomamos la URL de la primera imagen del array
                         imageUrl = accomodation.images[0].url; 
                     }
 
@@ -125,12 +120,31 @@ document.addEventListener('DOMContentLoaded', function() {
                         ratingAvg = `★ ${(sum / accomodation.reviews.length).toFixed(1)}`; // Ej: "★ 4.5"
                     }
                     
+                    //Amenities
+                    let amenitiesText = '';
+                    if (accomodation.amenities && accomodation.amenities.length > 0) {
+                        const amenitiesNames = accomodation.amenities
+                            .slice(0, 3)
+                            .map(a => a.name);
+                        
+                        amenitiesText = amenitiesNames.join(' . ')
+
+                        if (accomodation.amenities.length > 3) {
+                            amenitiesText += '...';
+                        }
+                    }
+
                     // 3. Crear el HTML de la tarjeta con los datos reales
                     card.innerHTML = `
                         <div class="property-image" style="background-image: url('${imageUrl}')"></div>
                         <div class="property-info">
                             <div class="property-type">${accomodation.location?.city || 'Alojamiento'}</div>
                             <h3 class="property-title">${accomodation.title}</h3>
+
+                            <div class="property-amenities" style="color: #666; font-size: 0.9em; margin-bottom: 8px;">
+                                ${amenitiesText}
+                            </div>
+
                             <div class="property-price">$${accomodation.pricePerNight} noche</div>
                             <div class="property-rating">${ratingAvg}</div>
                         </div>

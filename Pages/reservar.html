@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HomeSweetHome | Confirmar Reserva</title>
     <link rel="stylesheet" href="../Styles/reservar.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
 </head>
 
 <body>
@@ -19,7 +20,6 @@
                     </svg>
                     <h1>HomeSweetHome</h1>
                 </button>
-                
             </div>
         </div>
     </header>
@@ -89,11 +89,11 @@
                     <div class="date-grid">
                         <div class="date-field">
                             <label>Llegada</label>
-                            <input type="date" id="checkin-date" value="2024-01-15">
+                            <input type="date" id="checkin-date">
                         </div>
                         <div class="date-field">
                             <label>Salida</label>
-                            <input type="date" id="checkout-date" value="2024-01-20">
+                            <input type="date" id="checkout-date">
                         </div>
                     </div>
 
@@ -128,19 +128,22 @@
                     </div>
                 </div>
 
-                <div class="guest-info">
+                <!-- Formulario condicional: Se mostrará si el usuario NO está logueado -->
+                <div class="guest-info" id="guest-info-section">
                     <h4 class="detail-title">Información del huésped</h4>
                     <div class="form-group">
                         <label>Nombre completo</label>
-                        <input type="text" placeholder="Ingresa tu nombre completo">
+                        <input type="text" id="guest-name" placeholder="Ingresa tu nombre completo">
                     </div>
                     <div class="form-group">
                         <label>Correo electrónico</label>
-                        <input type="email" placeholder="tu@email.com">
+                        <input type="email" id="guest-email" placeholder="tu@email.com">
                     </div>
                     <div class="form-group">
                         <label>Teléfono</label>
-                        <input type="tel" placeholder="+52 123 456 7890">
+                        <div class="phone-input-group">
+                            <input type="tel" id="guest-phone" placeholder="123 456 7890">
+                        </div>
                     </div>
                 </div>
 
@@ -162,9 +165,9 @@
         </div>
     </div>
 
-    <script src="../Scripts/Reservar.js">
-
-    </script>
+    <script src="../config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
+    <script src="../Scripts/Reservar.js"></script>
 </body>
 
 </html>

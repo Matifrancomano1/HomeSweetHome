@@ -2,30 +2,41 @@
     --primary: #3498db;
     --primary-dark: #2980b9;
     --secondary: #f39c12;
-    --light: #ecf0f1;
-    --dark: #34495e;
+    --light: #f8f9fa;
+    /* Un poco más claro para contraste */
+    --white: #ffffff;
+    --dark: #2c3e50;
     --success: #2ecc71;
-    --text-light: #7f8c8d;
-    --border: #ddd;
+    --text-gray: #7f8c8d;
+    --border: #e0e0e0;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    /* Sombra más suave y moderna */
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
 body {
-    background-color: #f5f7fa;
+    background-color: #f0f2f5;
     color: var(--dark);
     min-height: 100vh;
+    line-height: 1.6;
 }
 
+/* --- HEADER --- */
 header {
-    background-color: white;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    background-color: var(--white);
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
     padding: 1rem 2rem;
+    position: sticky;
+    /* Para que el menú baje contigo */
+    top: 0;
+    z-index: 1000;
+    /* Por encima de todo */
 }
 
 .navbar {
@@ -36,10 +47,15 @@ header {
     margin: 0 auto;
 }
 
-#btn-home{
+#btn-home {
     background-color: transparent;
     border: none;
-    
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+#btn-home:hover {
+    transform: scale(1.05);
 }
 
 .logo {
@@ -49,265 +65,119 @@ header {
 
 .logo h1 {
     color: var(--primary);
-    font-size: 1.8rem;
-    margin-left: 0.5rem;
+    font-size: 1.6rem;
+    margin-left: 0.8rem;
+    font-weight: 700;
 }
 
+/* --- LAYOUT PRINCIPAL --- */
 .main-container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 2rem auto;
     padding: 0 2rem;
     display: grid;
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 3rem;
 }
 
 @media (min-width: 992px) {
     .main-container {
-        grid-template-columns: 1fr 400px;
+        grid-template-columns: 2.2fr 1fr;
+        align-items: start;
     }
 }
 
 .property-section {
-    background: white;
-    border-radius: 8px;
-    padding: 2rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    background: var(--white);
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    height: fit-content;
 }
 
 .property-header {
-    margin-bottom: 2rem;
-}
-
-.property-title {
-    font-size: 1.8rem;
-    color: var(--dark);
-    margin-bottom: 0.5rem;
-}
-
-.property-location {
-    color: var(--text-light);
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    padding-left: 0.5rem;
 }
 
 .property-images {
+    width: 100%;
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    gap: 0.5rem;
-    height: 300px;
-    margin-bottom: 2rem;
-    border-radius: 8px;
+    grid-template-columns: 2fr 1fr;
+    gap: 1rem;
+    height: 400px;
+    margin-bottom: 2.5rem;
+    border-radius: 16px;
     overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    .property-images {
+        grid-template-columns: 1fr;
+        height: 250px;
+    }
+
+    .secondary-images {
+        display: none;
+    }
+
+    .main-image {
+        border-radius: 16px;
+    }
 }
 
 .main-image {
     background-size: cover;
     background-position: center;
-    border-radius: 8px 0 0 8px;
+    height: 100%;
 }
 
 .secondary-images {
     display: grid;
     grid-template-rows: 1fr 1fr;
-    gap: 0.5rem;
+    gap: 0.8rem;
+    height: 100%;
 }
 
 .secondary-image {
     background-size: cover;
     background-position: center;
+    height: 100%;
 }
 
-.secondary-image:first-child {
-    border-radius: 0 8px 0 0;
-}
-
-.secondary-image:last-child {
-    border-radius: 0 0 8px 0;
-}
-
-.reservation-details {
-    background: white;
-    border-radius: 8px;
-    padding: 2rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    position: sticky;
-    top: 2rem;
-    height: fit-content;
-}
-
-.detail-card {
-    background: var(--light);
-    padding: 1.5rem;
-    border-radius: 8px;
+/* --- AMENITIES Y HOST --- */
+.section-title {
+    font-size: 1.4rem;
+    color: var(--dark);
     margin-bottom: 1.5rem;
-}
-
-.detail-title {
-    font-weight: 600;
-    margin-bottom: 1rem;
-    color: var(--dark);
-}
-
-.date-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-}
-
-.date-field {
-    margin-bottom: 1rem;
-}
-
-.date-field label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: var(--dark);
-}
-
-.date-field input {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    font-size: 1rem;
-}
-
-.guests-field {
-    margin-bottom: 1rem;
-}
-
-.guests-field label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: var(--dark);
-}
-
-.guests-field select {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    font-size: 1rem;
-}
-
-.price-summary {
-    border-top: 1px solid var(--border);
-    padding-top: 1.5rem;
-}
-
-.price-item {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.75rem;
-    color: var(--dark);
-}
-
-.price-total {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 2px solid var(--dark);
-    font-weight: 600;
-    font-size: 1.1rem;
-    color: var(--primary);
-}
-
-.guest-info {
-    margin-top: 2rem;
-}
-
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: var(--dark);
-}
-
-.form-group input {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    font-size: 1rem;
-}
-
-.btn-primary {
-    width: 100%;
-    padding: 1rem;
-    background-color: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-top: 1.5rem;
-}
-
-.btn-primary:hover {
-    background-color: var(--primary-dark);
-}
-
-.policy-section {
-    margin-top: 2rem;
-    padding: 1.5rem;
-    background: var(--light);
-    border-radius: 8px;
-}
-
-.policy-title {
-    font-weight: 600;
-    margin-bottom: 1rem;
-    color: var(--dark);
-}
-
-.policy-text {
-    color: var(--text-light);
-    line-height: 1.6;
-    margin-bottom: 1rem;
-}
-
-.amenities {
-    margin-top: 2rem;
+    font-weight: 700;
 }
 
 .amenities-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 1rem;
-    margin-top: 1rem;
+    margin-bottom: 3rem;
 }
 
 .amenity-item {
     display: flex;
     align-items: center;
-    padding: 0.75rem;
-    background: var(--light);
-    border-radius: 6px;
+    padding: 1rem;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+
+.amenity-item:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
 }
 
 .amenity-icon {
-    margin-right: 0.75rem;
-    font-size: 1.2rem;
-    color: var(--primary);
-}
-
-.section-title {
-    font-size: 1.5rem;
-    color: var(--dark);
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid var(--primary);
+    margin-right: 0.8rem;
+    font-size: 1.4rem;
 }
 
 .host-info {
@@ -315,34 +185,189 @@ header {
     align-items: center;
     margin-top: 2rem;
     padding: 1.5rem;
-    background: var(--light);
-    border-radius: 8px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
 }
 
 .host-avatar {
-    width: 60px;
-    height: 60px;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
-    margin-right: 1rem;
+    margin-right: 1.2rem;
     background-size: cover;
     background-position: center;
+    border: 2px solid var(--primary);
 }
 
-.host-details h4 {
+/* --- COLUMNA DERECHA (TARJETA DE RESERVA) --- */
+
+.reservation-section {
+    position: relative;
+    height: 100%;
+}
+
+.reservation-details {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    position: sticky;
+    top: 100px;
+    z-index: 10;
+}
+
+.detail-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
     color: var(--dark);
-    margin-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
 }
 
-.host-details p {
-    color: var(--text-light);
+/* Inputs y Fechas */
+.date-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 1.5rem;
 }
 
+.date-field label,
+.guests-field label,
+.form-group label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--dark);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+input[type="date"],
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+select {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background-color: #f9f9f9;
+    outline: none;
+}
+
+input:focus,
+select:focus {
+    border-color: var(--primary);
+    background-color: var(--white);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+}
+
+.guests-field {
+    margin-bottom: 2rem;
+}
+
+/* Phone Input Group Styles - Handled by intl-tel-input */
+.iti {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+/* Resumen de precios */
+.price-summary {
+    background-color: #f8fafd;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.price-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.8rem;
+    color: var(--text-gray);
+    font-size: 0.95rem;
+}
+
+.price-total {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--border);
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--dark);
+}
+
+.guest-info {
+    margin-top: 0;
+}
+
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+/* Botón */
+.btn-primary {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3);
+}
+
+.btn-primary:disabled,
+.btn-primary.disabled {
+    background: #bdc3c7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Mensajes y Políticas */
 .success-message {
     display: none;
-    background: var(--success);
-    color: white;
+    background-color: #d4edda;
+    color: #155724;
     padding: 1rem;
     border-radius: 8px;
     text-align: center;
     margin-top: 1rem;
+    font-weight: 600;
+    border: 1px solid #c3e6cb;
+}
+
+.policy-section {
+    margin-top: 1.5rem;
+    padding: 0;
+    background: transparent;
+}
+
+.policy-title {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.policy-text {
+    font-size: 0.85rem;
+    color: var(--text-gray);
+    line-height: 1.5;
 }
