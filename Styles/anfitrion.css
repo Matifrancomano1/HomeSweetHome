@@ -321,50 +321,115 @@ body {
 }
 
 .reservation-item {
-    background: white;
-    padding: 1.25rem;
-    border: 1px solid var(--border);
-    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    transition: transform 0.2s, box-shadow 0.2s;
+    flex-wrap: wrap; /* Para que se adapte en móviles */
     gap: 1rem;
 }
 
+.reservation-item:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* Izquierda: Info del Huésped */
 .guest-info {
     display: flex;
     align-items: center;
     gap: 1rem;
+    flex: 2; /* Ocupa más espacio */
 }
 
 .guest-avatar {
-    width: 40px;
-    height: 40px;
+    width: 45px;
+    height: 45px;
     background-color: var(--primary);
     color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
     border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
 }
 
-.status {
-    padding: 0.3rem 0.75rem;
-    border-radius: 20px;
+.guest-details h4 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--dark);
+}
+
+.res-email {
     font-size: 0.85rem;
+    color: #888;
+    margin: 2px 0;
+}
+
+.res-property {
+    font-size: 0.85rem;
+    color: var(--primary);
+    font-weight: 500;
+    margin: 0;
+}
+
+/* Centro: Fechas y Estado */
+.res-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    gap: 0.5rem;
+}
+
+.dates {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #555;
+}
+
+/* Derecha: Precio y Botones */
+.res-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.price {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--dark);
+}
+
+/* Etiquetas de Estado */
+.status {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
     font-weight: 600;
+    text-transform: uppercase;
 }
 
 .status.confirmed {
-    background-color: var(--success);
-    color: white;
+    background-color: #e8f5e9;
+    color: #2e7d32; /* Verde */
 }
 
-.status.pending {
-    background-color: var(--secondary);
-    color: white;
+.status.active {
+    background-color: #e3f2fd;
+    color: #1565c0; /* Azul */
+}
+
+.status.past {
+    background-color: #f5f5f5;
+    color: #757575; /* Gris */
 }
 
 /* Settings Tab */
@@ -409,6 +474,217 @@ body {
     background-color: var(--primary-dark);
 }
 
+/* Grilla de Propiedades del Anfitrión */
+.host-properties-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Tarjeta individual (reutilizando estilos o definiendo nuevos) */
+.host-property-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 0.2s;
+    border: 1px solid #eee;
+}
+
+.host-property-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.host-card-img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+.host-card-info {
+    padding: 1rem;
+}
+
+.host-card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--dark);
+}
+
+.host-card-meta {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.host-card-price {
+    color: var(--primary);
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+/* Estilos del Calendario */
+.calendar-container {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    border: 1px solid #eee;
+    width: 100%; /* Ocupa todo el ancho disponible */
+    /* Eliminamos el max-width que te pasé antes */
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.calendar-header h3 {
+    font-size: 1.5rem;
+    margin: 0;
+    color: var(--dark);
+    text-transform: capitalize;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* 7 columnas que se estiran */
+    grid-auto-rows: 100px;
+    gap: 8px; /* Espacio entre días */
+    min-height: 640px;
+}
+
+/* Encabezados (Lun, Mar, Mie...) */
+.calendar-day.header {
+    background-color: transparent;
+    border: none;
+    font-weight: 700;
+    color: #555;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centrados */
+}
+
+/* Celdas de los Días */
+.calendar-day {
+    /* CLAVE: Altura fija, no depende del ancho */
+    height: 100px; 
+    
+    background-color: white;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    
+    /* Alineación del número: Arriba a la derecha (estilo calendario real) */
+    display: flex;
+    justify-content: flex-end; /* A la derecha */
+    align-items: flex-start;   /* Arriba */
+    
+    cursor: default;
+    transition: all 0.2s ease;
+}
+
+/* Hover suave solo en días disponibles */
+.calendar-day.available:hover {
+    border-color: #bbb;
+    background-color: #fafafa;
+}
+
+/* --- ESTADOS (Colores) --- */
+
+/* Reservado Futuro (Pendiente) */
+.calendar-day.pending {
+    background-color: #fff3cd; /* Amarillo muy suave */
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+/* Ocupado (Hoy/Pasado) */
+.calendar-day.booked {
+    background-color: #d1ecf1; /* Azul muy suave */
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+/* Espacios vacíos */
+.calendar-day.empty {
+    background-color: transparent;
+    border: none;
+}
+
+/* --- ESTILO DEL LOGO COMO BOTÓN DE RETORNO --- */
+
+.logo-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 0;
+    text-align: left;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid transparent;
+}
+
+.logo-btn:hover {
+    /* Efecto suave al pasar el mouse */
+    opacity: 0.8;
+    transform: translateX(2px);
+}
+
+.logo-icon-container svg {
+    /* Aseguramos que el icono tenga el color primario */
+    fill: var(--primary, #3498db);
+    transition: transform 0.3s ease;
+}
+
+.logo-btn:hover .logo-icon-container svg {
+    transform: scale(1.1); /* El icono crece un poquito */
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.logo-text h1 {
+    font-size: 1.2rem; /* Tamaño ajustado */
+    margin: 0;
+    color: var(--dark, #333);
+    line-height: 1.2;
+}
+
+/* Texto pequeño que aparece o se destaca al hacer hover */
+.back-hint {
+    font-size: 0.75rem;
+    color: #888;
+    margin-top: 2px;
+    font-weight: 500;
+    opacity: 0; /* Invisible normalmente */
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+}
+
+/* Cuando pasas el mouse por el logo, aparece el texto "Volver" */
+.logo-btn:hover .back-hint {
+    opacity: 1;
+    transform: translateY(0);
+    color: var(--primary, #3498db);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .dashboard {
@@ -446,5 +722,19 @@ body {
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
+    }
+
+    .calendar-day {
+        height: 60px;
+        font-size: 0.8rem;
+    }
+
+    .reservation-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .res-center, .res-right {
+        align-items: flex-start;
+        width: 100%;
     }
 }

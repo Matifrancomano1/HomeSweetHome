@@ -1,0 +1,38 @@
+/* Botón de Volver Atrás Flotante o en Header */
+.btn-back {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 9999;
+    background-color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: white; /* O #f5f7fa si el fondo es blanco */
+    color: var(--dark, #333);
+    border: 1px solid #ddd;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    cursor: pointer;
+    
+    /* Para posicionarlo flotante si se necesita */
+    /* position: absolute; top: 20px; left: 20px; */ 
+}
+
+.btn-back:hover {
+    background-color: var(--primary, #3498db);
+    color: white;
+    border-color: var(--primary, #3498db);
+    transform: translateX(-3px); /* Efecto de moverse a la izquierda */
+}
+
+/* Icono SVG dentro del botón */
+.btn-back svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}

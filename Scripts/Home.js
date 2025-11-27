@@ -3,7 +3,10 @@
    TODA la lógica para la página de inicio.
    ======================================================= */
 
-// --- 1. FUNCIÓN HELPER (va primero, fuera de todo) ---
+// Variable global para guardar los alojamientos cargados
+let allAccommodations = []; 
+
+// --- 1. FUNCIÓN HELPER ---
 async function fetchConToken(url, options = {}) {
     const token = localStorage.getItem('jwtToken');
     const headers = {
@@ -16,12 +19,6 @@ async function fetchConToken(url, options = {}) {
     const config = {...options, headers: headers};
     const response = await fetch(url, config);
 
-    // if (response.status === 401 || response.status === 403) {
-    //     localStorage.clear();
-    //     alert('Sesión expirada. Por favor, inicia sesión nuevamente.');
-    //     window.location.href = 'login.html'; // (Ajusta la ruta si es necesario)
-    //     throw new Error('No autorizado');
-    // }
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || 'Error en la petición');
@@ -45,34 +42,23 @@ document.addEventListener('DOMContentLoaded', function() {
         logoutBtn.style.display = 'inline-block';
         loginBtn.style.display = 'none';
 
-        fetchConToken(`${API_BASE_URL}/api/users/${userId}`)
+        fetchConToken(`${API_BASE_URL}/users/${userId}`)
             .then(user => {
                 usuarioBtn.textContent = `Hola, ${user.firstName}`; 
+                // Guardamos nombre en localStorage para usarlo al reservar
+                localStorage.setItem('usuarioName', user.firstName + ' ' + user.lastName);
             })
             .catch(error => {
                 console.error("Error al cargar datos del usuario:", error);
                 usuarioBtn.textContent = 'Mi Perfil';
             });
 
-        // Solucion temporal
-        // const userEmail = localStorage.getItem('userEmail');
-        
-        // if (userEmail) {
-        //     // Mostramos la parte del email antes del "@"
-        //     usuarioBtn.textContent = `Hola, ${userEmail.split('@')[0]}`;
-        // } else {
-        //     usuarioBtn.textContent = 'Mi Perfil'; // Fallback
-        // }
-        //----------------------------
-
         logoutBtn.onclick = function () {
-            localStorage.removeItem('jwtToken');
-            localStorage.removeItem('userId');
-            localStorage.removeItem('userEmail');
-            window.location.href = 'login.html'; // (Ajusta la ruta)
+            localStorage.clear(); // Limpia todo para asegurar
+            window.location.href = 'login.html'; 
         };
         usuarioBtn.onclick = function () {
-             window.location.href = 'anfitrion.html'; // (Ajusta la ruta)
+             window.location.href = 'anfitrion.html'; 
         };
     } else {
         // Usuario NO LOGUEADO
@@ -80,85 +66,93 @@ document.addEventListener('DOMContentLoaded', function() {
         logoutBtn.style.display = 'none';
         usuarioBtn.style.display = 'none';
         loginBtn.onclick = function () {
-            window.location.href = 'login.html'; // (Ajusta la ruta)
+            window.location.href = 'login.html';
         };
     }
 
-    // --- LÓGICA DE CARGA DE ALOJAMIENTOS (PROPERTIES) ---
+    // --- REFERENCIA AL GRID ---
     const propertyGrid = document.querySelector('.properties-container .property-grid');
+
+    // --- FUNCIÓN PARA DIBUJAR LAS TARJETAS (Render) ---
+    function renderAccommodations(list) {
+        if (!propertyGrid) return;
+        
+        propertyGrid.innerHTML = ''; // Limpiar grid
+
+        if (list.length === 0) {
+             propertyGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No se encontraron alojamientos con esos criterios.</p>';
+             return;
+        }
+
+        list.forEach(accomodation => {
+            const card = document.createElement('div');
+            card.className = 'property-card';
+
+            // 1. URL Imagen
+            let imageUrl = 'https://placehold.co/600x400';
+            if (accomodation.images && accomodation.images.length > 0) {
+                imageUrl = accomodation.images[0].url; 
+            }
+
+            // 2. Rating
+            let ratingAvg = "Sin reseñas";
+            if (accomodation.reviews && accomodation.reviews.length > 0) {
+                const sum = accomodation.reviews.reduce((acc, review) => acc + review.rating, 0);
+                ratingAvg = `★ ${(sum / accomodation.reviews.length).toFixed(1)}`;
+            }
+            
+            // 3. Amenities
+            let amenitiesText = '';
+            if (accomodation.amenities && accomodation.amenities.length > 0) {
+                const amenitiesNames = accomodation.amenities
+                    .slice(0, 3)
+                    .map(a => a.name);
+                
+                amenitiesText = amenitiesNames.join(' · '); // Usé punto medio
+
+                if (accomodation.amenities.length > 3) {
+                    amenitiesText += '...';
+                }
+            }
+
+            // 4. HTML
+            card.innerHTML = `
+                <div class="property-image" style="background-image: url('${imageUrl}')"></div>
+                <div class="property-info">
+                    <div class="property-type">${accomodation.location?.city || 'Alojamiento'}</div>
+                    <h3 class="property-title">${accomodation.title}</h3>
+
+                    <div class="property-amenities" style="color: #666; font-size: 0.9em; margin-bottom: 8px;">
+                        ${amenitiesText}
+                    </div>
+
+                    <div class="property-price">$${accomodation.pricePerNight} noche</div>
+                    <div class="property-rating">${ratingAvg}</div>
+                </div>
+            `;
+            
+            card.addEventListener('click', function() {
+                window.location.href = `reservar.html?id=${accomodation.id}`;
+            });
+            
+            propertyGrid.appendChild(card);
+        });
+    }
+
+    // --- CARGA INICIAL DE DATOS ---
     if (propertyGrid) {
         propertyGrid.innerHTML = '<p>Cargando alojamientos...</p>';
 
-        // Endpoint público, no necesita fetchConToken
         fetch(`${API_BASE_URL}/accomodations`)
             .then(response => {
                 if (!response.ok) throw new Error('No se pudieron cargar los alojamientos');
                 return response.json();
             })
-            .then(accomodations => {
-                propertyGrid.innerHTML = ''; // Limpiar "Cargando..."
-                if (accomodations.length === 0) {
-                     propertyGrid.innerHTML = '<p>No hay alojamientos disponibles.</p>';
-                     return;
-                }
-
-                accomodations.forEach(accomodation => {
-                    const card = document.createElement('div');
-                    card.className = 'property-card';
-
-                    // 1. Determinar la URL de la imagen
-                    let imageUrl = 'https://placehold.co/600x400'; // Imagen por defecto
-                    if (accomodation.images && accomodation.images.length > 0) {
-                        imageUrl = accomodation.images[0].url; 
-                    }
-
-                    // 2. Determinar el Rating (opcional pero bueno)
-                    // Calculemos el promedio de estrellas de las reseñas (reviews)
-                    let ratingAvg = "Sin reseñas";
-                    if (accomodation.reviews && accomodation.reviews.length > 0) {
-                        const sum = accomodation.reviews.reduce((acc, review) => acc + review.rating, 0);
-                        ratingAvg = `★ ${(sum / accomodation.reviews.length).toFixed(1)}`; // Ej: "★ 4.5"
-                    }
-                    
-                    //Amenities
-                    let amenitiesText = '';
-                    if (accomodation.amenities && accomodation.amenities.length > 0) {
-                        const amenitiesNames = accomodation.amenities
-                            .slice(0, 3)
-                            .map(a => a.name);
-                        
-                        amenitiesText = amenitiesNames.join(' . ')
-
-                        if (accomodation.amenities.length > 3) {
-                            amenitiesText += '...';
-                        }
-                    }
-
-                    // 3. Crear el HTML de la tarjeta con los datos reales
-                    card.innerHTML = `
-                        <div class="property-image" style="background-image: url('${imageUrl}')"></div>
-                        <div class="property-info">
-                            <div class="property-type">${accomodation.location?.city || 'Alojamiento'}</div>
-                            <h3 class="property-title">${accomodation.title}</h3>
-
-                            <div class="property-amenities" style="color: #666; font-size: 0.9em; margin-bottom: 8px;">
-                                ${amenitiesText}
-                            </div>
-
-                            <div class="property-price">$${accomodation.pricePerNight} noche</div>
-                            <div class="property-rating">${ratingAvg}</div>
-                        </div>
-                    `;
-                    
-                    // --- FIN DE LA MODIFICACIÓN ---
-                    
-                    // (La lógica del click se mantiene igual)
-                    card.addEventListener('click', function() {
-                        window.location.href = `reservar.html?id=${accomodation.id}`;
-                    });
-                    
-                    propertyGrid.appendChild(card);
-                });
+            .then(data => {
+                // GUARDAMOS LOS DATOS EN LA VARIABLE GLOBAL
+                allAccommodations = data;
+                // Renderizamos todo al principio
+                renderAccommodations(allAccommodations);
             })
             .catch(error => {
                 console.error('Error al cargar alojamientos:', error);
@@ -166,62 +160,67 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // --- LÓGICA DE CATEGORÍAS (Tu código original) ---
-    const categoryCards = document.querySelectorAll('.category-card');
-    categoryCards.forEach(card => {
-        card.addEventListener('click', function() {
-            const categoryName = this.querySelector('.category-name').textContent;
-            alert(`Mostrando alojamientos en la categoría: ${categoryName}`);
-        });
-    });
-    
-    // --- LÓGICA DE PESTAÑAS DE BÚSQUEDA (Tu código original) ---
-    const searchTabs = document.querySelectorAll('.search-tab');
-    searchTabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-            searchTabs.forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-        });
-    });
-
-    // --- LÓGICA DEL FORMULARIO DE BÚSQUEDA (Tu código original) ---
+    // --- LÓGICA DEL BUSCADOR (NUEVA) ---
     const searchBtn = document.querySelector('.search-btn');
-    if (searchBtn) {
-        searchBtn.addEventListener('click', function () {
-            const location = document.querySelector('#location').value.trim();
-            const checkin = document.querySelector('#checkin').value.trim();
-            const checkout = document.querySelector('#checkout').value.trim();
-            const guests = document.querySelector('#guests').value.trim();
-            let isValid = true; // movido para estar accesible
+    const locationInputDOM = document.querySelector('#location');
 
-            resetSearchErrors();
-            
-            // ... (Validaciones) ...
-            if (!location) {
-                showSearchError('location', 'Por favor ingresa una ubicación');
-                isValid = false;
+    // 1. Función reutilizable que hace el filtro
+    function ejecutarBusqueda() {
+        // Obtenemos los valores de los inputs
+        const locationVal = locationInputDOM.value.trim().toLowerCase();
+        const guestsVal = parseInt(document.querySelector('#guests').value) || 0;
+        
+        // FILTRADO
+        const filteredList = allAccommodations.filter(acc => {
+            let matchesLocation = true;
+            let matchesGuests = true;
+
+            // Filtro por Ubicación
+            if (locationVal) {
+                const city = acc.location?.city?.toLowerCase() || '';
+                const country = acc.location?.country?.toLowerCase() || '';
+                const title = acc.title?.toLowerCase() || '';
+                
+                matchesLocation = city.includes(locationVal) || 
+                                  country.includes(locationVal) || 
+                                  title.includes(locationVal);
             }
-            if (!checkin) {
-                 showSearchError('checkin', 'Por favor selecciona una fecha de llegada');
-                 isValid = false;
+
+            // Filtro por Huéspedes
+            if (guestsVal > 0) {
+                 if (acc.maxGuests) {
+                    matchesGuests = acc.maxGuests >= guestsVal;
+                 }
             }
-            // ... (etc.) ...
-            
-            if (isValid) {
-                 // (Tu lógica de redirección)
-                 window.location.href = 'reservar.html'; // (Ajusta la ruta)
+
+            return matchesLocation && matchesGuests;
+        });
+
+        // Renderizar resultados
+        renderAccommodations(filteredList);
+    }
+
+    // 2. Evento Click en el botón "Buscar"
+    if (searchBtn) {
+        searchBtn.addEventListener('click', ejecutarBusqueda);
+    }
+
+    // 3. Evento "Enter" en el input de ubicación
+    if (locationInputDOM) {
+        locationInputDOM.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                ejecutarBusqueda();
             }
         });
     }
 
-    // Funciones auxiliares para la búsqueda
-    function showSearchError(fieldId, message) {
-        const errorElement = document.getElementById(`${fieldId}-error`);
-        if (errorElement) {
-            errorElement.textContent = message;
-            errorElement.style.display = 'block';
-        }
-    }
+    // --- UI HELPER: Borrar mensajes de error al escribir ---
+    const inputs = document.querySelectorAll('.search-box input, .search-box select');
+    inputs.forEach(input => {
+        input.addEventListener('input', () => {
+             resetSearchErrors();
+        });
+    });
 
     function resetSearchErrors() {
         const errorMessages = document.querySelectorAll('.search-box .error-message');
@@ -230,4 +229,31 @@ document.addEventListener('DOMContentLoaded', function() {
             el.style.display = 'none';
         });
     }
+
+    // --- LÓGICA DE CATEGORÍAS ---
+    const categoryCards = document.querySelectorAll('.category-card');
+    categoryCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const categoryName = this.querySelector('.category-name').textContent;
+            
+            // Ejemplo de filtro por categoría (simple)
+            // Si tienes un campo "category" en tu objeto accommodation:
+            /*
+            const filtered = allAccommodations.filter(acc => 
+                acc.category === categoryName
+            );
+            renderAccommodations(filtered);
+            */
+            alert(`Filtrando por categoría: ${categoryName} (Falta implementar campo categoría en backend)`);
+        });
+    });
+
+    // --- TABS VISUALES ---
+    const searchTabs = document.querySelectorAll('.search-tab');
+    searchTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            searchTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
 });
