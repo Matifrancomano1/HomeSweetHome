@@ -229,7 +229,11 @@ document.addEventListener('DOMContentLoaded', async function () {
                     </div>
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
                         <div class="host-card-price">$${acc.pricePerNight} <span style="font-size:0.8em; font-weight:normal; color:#777;">/noche</span></div>
-                        <button class="action-btn btn-secondary" style="padding: 5px 10px; font-size:0.8rem;">Editar</button>
+                        <button class="action-btn btn-secondary" 
+                                onclick="window.location.href='editarChoza.html?id=${acc.id}'"
+                                style="padding: 5px 10px; font-size:0.8rem; cursor: pointer;">
+                            Editar
+                        </button>
                     </div>
                 </div>
             `;

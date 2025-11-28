@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HomeSweetHome | Publicar Alojamiento</title>
-    <link rel="stylesheet" href="../Styles/agregarChoza.css">
+    <title>HomeSweetHome | Editar Alojamiento</title>
     <link rel="stylesheet" href="../Styles/style.css">
+    <link rel="stylesheet" href="../Styles/agregarChoza.css">
 </head>
 <body>
-
     <header>
         <div class="navbar">
             <div class="logo">
@@ -17,49 +16,46 @@
                 </svg>
                 <h1>HomeSweetHome</h1>
             </div>
-            
             <div class="user-menu">
                 <a href="anfitrion.html" class="btn-exit">
-                    Salir
+                    Cancelar
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                </a>            
+                </a>
             </div>
         </div>
-
-        
     </header>
     
     <main class="main-content-wrapper">
         <div class="publish-container card-style">
             
             <div class="form-header">
-                <h2>Publicar nuevo alojamiento</h2>
-                <p>Completa la información para que los huéspedes encuentren tu espacio.</p>
+                <h2>Editar Alojamiento</h2>
+                <p>Actualiza la información de tu propiedad.</p>
             </div>
 
-            <form id="create-form">
+            <form id="edit-form">
                 
                 <div class="form-section">
                     <h3 class="section-title">📝 Información Básica</h3>
                     
                     <div class="form-group">
                         <label for="title">Título del anuncio <span class="required">*</span></label>
-                        <input type="text" id="title" placeholder="Ej: Cabaña rústica frente al lago" minlength="5" maxlength="100" required>
+                        <input type="text" id="title" required>
                     </div>
 
                     <div class="form-group">
                         <label for="description">Descripción <span class="required">*</span></label>
-                        <textarea id="description" rows="4" placeholder="Describe lo que hace especial a tu alojamiento..." minlength="10" maxlength="1000" required></textarea>
+                        <textarea id="description" rows="4" required></textarea>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group half">
                             <label for="price">Precio por noche ($) <span class="required">*</span></label>
-                            <input type="number" id="price" placeholder="0.00" min="1" step="0.01" required>
+                            <input type="number" id="price" min="1" step="0.01" required>
                         </div>
                         <div class="form-group half">
                             <label for="maxGuests">Máximo de huéspedes <span class="required">*</span></label>
-                            <input type="number" id="maxGuests" placeholder="1" min="1" required>
+                            <input type="number" id="maxGuests" min="1" required>
                         </div>
                     </div>
                 </div>
@@ -69,62 +65,48 @@
                     
                     <div class="form-group">
                         <label for="address">Dirección completa <span class="required">*</span></label>
-                        <input type="text" id="address" placeholder="Calle y número" required>
+                        <input type="text" id="address" required>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group half">
                             <label for="city">Ciudad <span class="required">*</span></label>
-                            <input type="text" id="city" placeholder="Ej: Buenos Aires" required>
+                            <input type="text" id="city" required>
                         </div>
                         <div class="form-group half">
                             <label for="country">País <span class="required">*</span></label>
-                            <input type="text" id="country" placeholder="Ej: Argentina" required>
+                            <input type="text" id="country" required>
                         </div>
                     </div>
                     
                     <div class="form-row">
                         <div class="form-group half">
                             <label for="postalCode">Código Postal</label>
-                            <input type="text" id="postalCode" placeholder="CP">
+                            <input type="text" id="postalCode">
                         </div>
                     </div>
                 </div>
 
                 <div class="form-section">
                     <h3 class="section-title">✨ Comodidades</h3>
-                    <p style="margin-bottom: 10px; color:#666; font-size:0.9rem;">Selecciona todo lo que ofrece tu alojamiento.</p>
-                    
                     <div class="amenities-grid">
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="amenities" value="1" data-name="Wi-Fi"> Wi-Fi
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="amenities" value="2" data-name="Piscina"> Piscina
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="amenities" value="3" data-name="Cocina"> Cocina
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="amenities" value="4" data-name="Aire Acondicionado"> Aire Acondicionado
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="amenities" value="5" data-name="Estacionamiento"> Estacionamiento
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="amenities" value="6" data-name="Pet Friendly"> Pet Friendly
-                        </label>
+                        <label class="checkbox-label"><input type="checkbox" name="amenities" value="1" data-name="Wi-Fi"> Wi-Fi</label>
+                        <label class="checkbox-label"><input type="checkbox" name="amenities" value="2" data-name="Piscina"> Piscina</label>
+                        <label class="checkbox-label"><input type="checkbox" name="amenities" value="3" data-name="Cocina"> Cocina</label>
+                        <label class="checkbox-label"><input type="checkbox" name="amenities" value="4" data-name="Aire Acondicionado"> Aire Acondicionado</label>
+                        <label class="checkbox-label"><input type="checkbox" name="amenities" value="5" data-name="Estacionamiento"> Estacionamiento</label>
+                        <label class="checkbox-label"><input type="checkbox" name="amenities" value="6" data-name="Pet Friendly"> Pet Friendly</label>
                     </div>
                 </div>
 
                 <div class="form-section">
-                    <h3 class="section-title">📸 Fotos <span class="required">*</span></h3>
-                    <p style="margin-bottom: 15px; color:#666; font-size:0.9rem;">Sube al menos 3 fotos.</p>
+                    <h3 class="section-title">📸 Fotos</h3>
+                    <p style="margin-bottom: 15px; color:#666; font-size:0.9rem;">Agrega nuevas fotos o elimina las existentes.</p>
 
                     <div class="photo-upload" id="main-photo-upload">
                         <div class="upload-content">
                             <div class="upload-icon">📷</div>
-                            <p>Arrastra tus fotos o haz clic para subir</p>
+                            <p>Agregar más fotos</p>
                         </div>
                         <input type="file" multiple accept="image/*" style="display: none;" id="photo-input">
                     </div>
@@ -133,7 +115,7 @@
                 </div>
 
                 <div class="form-actions-final">
-                    <button type="submit" class="btn btn-primary btn-block" id="submit-btn">Publicar Alojamiento</button>
+                    <button type="submit" class="btn btn-primary btn-block" id="submit-btn">Guardar Cambios</button>
                 </div>
 
             </form>
@@ -141,7 +123,6 @@
     </main>
     
     <script src="../config.js"></script>
-    <script src="../Scripts/AgregarChoza.js"></script>
+    <script src="../Scripts/EditarChoza.js"></script>
 </body>
 </html>
- 
