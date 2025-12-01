@@ -82,6 +82,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.log("Login Response:", data);
 
                 // 1. GUARDAR DATOS EN STORAGE
+                sessionStorage.clear();
+                localStorage.clear();
                 const token = data.accessToken || data.token || data.jwt;
                 if (!token) {
                     throw new Error('No se recibio el token de autenticacion');

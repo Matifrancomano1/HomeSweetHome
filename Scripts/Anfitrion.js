@@ -4,12 +4,12 @@
    ======================================================= */
 
 // --- 1. CONFIGURACIÓN Y VARIABLES GLOBALES ---
-const CACHE_KEY = 'host_dashboard_data'; 
+const CACHE_KEY = 'host_dashboard_lite'; // Cambiamos nombre para evitar conflictos viejos
 let currentUser = null;
 let myAccommodations = [];
 let myReservations = [];
 
-// [CORRECCIÓN]: Definimos esta variable AQUÍ ARRIBA para que esté disponible siempre
+// Variable global del calendario
 let currentCalendarDate = new Date(); 
 
 // --- HELPER FETCH ---
@@ -41,7 +41,6 @@ async function fetchConToken(url, options = {}) {
 
 document.addEventListener('DOMContentLoaded', async function () {
     
-    // --- 2. VERIFICACIÓN DE SESIÓN ---
     const userId = localStorage.getItem('userId');
     const token = localStorage.getItem('jwtToken');
 
@@ -50,48 +49,82 @@ document.addEventListener('DOMContentLoaded', async function () {
         return;
     }
 
-    // --- 3. CARGA DE DATOS ---
+    // --- 3. CARGA DE DATOS (ESTRATEGIA HÍBRIDA) ---
     async function loadData() {
         try {
-            // A. Intentamos leer del caché
+            // A. CARGA RÁPIDA (Solo datos livianos desde Caché)
             const cachedData = sessionStorage.getItem(CACHE_KEY);
+            let needToFetchLightData = true;
 
             if (cachedData) {
-                console.log("⚡ Cargando desde caché...");
-                const data = JSON.parse(cachedData);
-                currentUser = data.user;
-                myAccommodations = data.accommodations;
-                myReservations = data.reservations;
-                
-                updateUIall(); 
-                return;
+                try {
+                    const data = JSON.parse(cachedData);
+                    // Verificación de seguridad (que el caché sea del usuario actual)
+                    if (data.user && String(data.user.id) === String(userId)) {
+                        console.log("⚡ Cargando datos livianos desde caché...");
+                        currentUser = data.user;
+                        myReservations = data.reservations || [];
+                        
+                        // Renderizamos lo que tenemos (Usuario, Stats parciales, Reservas)
+                        // Aún no tenemos alojamientos, así que las stats de rating esperarán un poco
+                        updateUIUser(currentUser);
+                        renderReservations();
+                        renderCalendar();
+                        
+                        needToFetchLightData = false; // Ya tenemos lo básico
+                    }
+                } catch (e) {
+                    sessionStorage.removeItem(CACHE_KEY);
+                }
             }
 
-            // B. Si no hay caché, vamos al Backend
-            console.log("🌐 Descargando datos del backend...");
+            // B. CARGA PESADA (Alojamientos + Fotos) - SIEMPRE DESDE LA RED
+            // Esto evita el error de QuotaExceededError
+            console.log("🌐 Descargando alojamientos (imágenes)...");
             
-            // 1. Usuario
-            currentUser = await fetchConToken(`${API_BASE_URL}/users/${userId}`);
-            
-            // 2. Alojamientos
-            const allAccommodations = await fetchConToken(`${API_BASE_URL}/accomodations`);
-            myAccommodations = allAccommodations.filter(acc => 
-                (acc.host && acc.host.id == userId) || (acc.user && acc.user.id == userId)
-            );
+            // Hacemos el fetch de alojamientos en paralelo a lo demás si es necesario
+            const promises = [];
 
-            // 3. Reservas (Endpoint específico)
-            const responseRes = await fetchConToken(`${API_BASE_URL}/reservations/host/${userId}`);
-            myReservations = responseRes || [];
+            // 1. Promesa de Alojamientos (Pesado)
+            const accommodationsPromise = fetchConToken(`${API_BASE_URL}/accomodations`).then(all => {
+                // Filtramos los míos
+                return all.filter(acc => 
+                    (acc.host && String(acc.host.id) === String(userId)) || 
+                    (acc.user && String(acc.user.id) === String(userId))
+                );
+            });
+            promises.push(accommodationsPromise);
 
-            // C. Guardamos en Caché
-            const dataToSave = {
-                user: currentUser,
-                accommodations: myAccommodations,
-                reservations: myReservations
-            };
-            sessionStorage.setItem(CACHE_KEY, JSON.stringify(dataToSave));
+            // 2. Si no había caché, pedimos User y Reservas también
+            if (needToFetchLightData) {
+                promises.push(fetchConToken(`${API_BASE_URL}/users/${userId}`));
+                promises.push(fetchConToken(`${API_BASE_URL}/reservations/host/${userId}`));
+            }
 
-            // D. Renderizar
+            // Esperamos a que todo termine
+            const results = await Promise.all(promises);
+
+            // Asignamos resultados
+            myAccommodations = results[0]; // Siempre es el primero en el array
+
+            if (needToFetchLightData) {
+                currentUser = results[1];
+                myReservations = results[2] || [];
+                
+                // Guardamos en caché SOLO LO LIVIANO
+                try {
+                    const dataToSave = {
+                        user: currentUser,
+                        reservations: myReservations
+                        // NOTA: NO guardamos 'myAccommodations' aquí para no saturar la memoria
+                    };
+                    sessionStorage.setItem(CACHE_KEY, JSON.stringify(dataToSave));
+                } catch (err) {
+                    console.warn("No se pudo guardar caché (espacio lleno), pero la app sigue funcionando.");
+                }
+            }
+
+            // C. RENDER FINAL (Con todo listo)
             updateUIall();
 
         } catch (error) {
@@ -101,34 +134,30 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     function updateUIall() {
         updateUIUser(currentUser);
-        updateStats(); 
-        renderHostProperties();
+        updateStats(); // Ahora sí calculará rating porque ya tiene accommodations
+        renderHostProperties(); // Ahora sí pintará las fotos
         renderReservations();
-        renderCalendar(); // Ahora sí funcionará porque la variable ya existe
+        renderCalendar();
     }
 
-    // Ejecutamos la carga inicial
+    // Ejecutamos la carga
     loadData();
 
 
     // --- 4. FUNCIONES DE RENDERIZADO ---
 
     function updateUIUser(user) {
+        if (!user) return;
         const sidebarName = document.getElementById('sidebar-name');
-        if (sidebarName) {
-            sidebarName.textContent = user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName;
-        }
+        if (sidebarName) sidebarName.textContent = user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName;
 
         const welcomeMsg = document.getElementById('welcome-msg');
-        if (welcomeMsg) {
-            welcomeMsg.textContent = `Bienvenido, ${user.firstName}`;
-        }
+        if (welcomeMsg) welcomeMsg.textContent = `Bienvenido, ${user.firstName}`;
 
         const roleDisplay = document.getElementById('user-role-display');
         if (roleDisplay) {
             const roleMap = { 'HOST': 'Anfitrión', 'ADMIN': 'Administrador', 'GUEST': 'Huésped', 'USER': 'Usuario' };
-            const userRole = user.role || 'USER';
-            roleDisplay.textContent = roleMap[userRole] || userRole;
+            roleDisplay.textContent = roleMap[user.role || 'USER'] || user.role;
         }
         
         const avatarDiv = document.getElementById('sidebar-avatar'); 
@@ -157,34 +186,39 @@ document.addEventListener('DOMContentLoaded', async function () {
         let contadorPendientes = 0;
         let sumaIngresos = 0;
 
-        myReservations.forEach(res => {
-            if (res.deletedAt) return;
+        if (myReservations) {
+            myReservations.forEach(res => {
+                if (res.deletedAt) return;
 
-            const checkIn = new Date(res.checkIn);
-            checkIn.setMinutes(checkIn.getMinutes() + checkIn.getTimezoneOffset());
-            checkIn.setHours(0,0,0,0);
+                const checkIn = new Date(res.checkIn);
+                checkIn.setMinutes(checkIn.getMinutes() + checkIn.getTimezoneOffset());
+                checkIn.setHours(0,0,0,0);
 
-            const checkOut = new Date(res.checkOut);
-            checkOut.setMinutes(checkOut.getMinutes() + checkOut.getTimezoneOffset());
-            checkOut.setHours(0,0,0,0);
+                const checkOut = new Date(res.checkOut);
+                checkOut.setMinutes(checkOut.getMinutes() + checkOut.getTimezoneOffset());
+                checkOut.setHours(0,0,0,0);
 
-            if (checkOut >= hoy) { contadorActivas++; }
-            if (checkIn > hoy) { contadorPendientes++; }
+                if (checkOut >= hoy) { contadorActivas++; }
+                if (checkIn > hoy) { contadorPendientes++; }
 
-            const precio = Number(res.totalPrice) || 0; 
-            sumaIngresos += precio;
-        });
+                const precio = Number(res.totalPrice) || 0; 
+                sumaIngresos += precio;
+            });
+        }
 
         let totalRating = 0;
         let countRating = 0;
-        myAccommodations.forEach(acc => {
-            if (Array.isArray(acc.reviews)) {
-                acc.reviews.forEach(r => {
-                    totalRating += Number(r.rating) || 0;
-                    countRating++;
-                });
-            }
-        });
+        
+        if (myAccommodations) {
+            myAccommodations.forEach(acc => {
+                if (Array.isArray(acc.reviews)) {
+                    acc.reviews.forEach(r => {
+                        totalRating += Number(r.rating) || 0;
+                        countRating++;
+                    });
+                }
+            });
+        }
         const avgRating = countRating > 0 ? (totalRating / countRating).toFixed(1) : '-';
 
         if (elReservas) elReservas.textContent = contadorActivas;
@@ -199,7 +233,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         
         container.innerHTML = ''; 
 
-        if (myAccommodations.length === 0) {
+        if (!myAccommodations || myAccommodations.length === 0) {
             container.innerHTML = `
                 <div style="grid-column: 1/-1; text-align:center; padding: 2rem; background:#f9f9f9; border-radius:8px;">
                     <p>Aún no has publicado ninguna propiedad.</p>
@@ -244,10 +278,9 @@ document.addEventListener('DOMContentLoaded', async function () {
     function renderReservations() {
         const container = document.getElementById('reservations-container');
         if(!container) return;
-        
         container.innerHTML = '';
 
-        if (myReservations.length === 0) {
+        if (!myReservations || myReservations.length === 0) {
             container.innerHTML = `
                 <div style="text-align: center; padding: 3rem; color: #666;">
                     <div style="font-size: 3rem; margin-bottom: 1rem;">📅</div>
@@ -256,42 +289,28 @@ document.addEventListener('DOMContentLoaded', async function () {
             return;
         }
 
-        // Ordenar: Más recientes primero (por fecha de Check-In)
         myReservations.sort((a, b) => new Date(b.checkIn) - new Date(a.checkIn));
 
         myReservations.forEach(res => {
             const card = document.createElement('div');
             card.className = 'reservation-item';
             
-            // Datos del Huésped (Validación segura)
             const guestName = res.guest ? `${res.guest.firstName} ${res.guest.lastName}` : 'Usuario eliminado';
-            const guestEmail = res.guest ? res.guest.email : '';
             const guestInitials = res.guest ? res.guest.firstName.charAt(0).toUpperCase() : '?';
+            const guestEmail = res.guest ? res.guest.email : '';
 
-            // Ajuste de Fechas y Formato Local (ej: "25 nov 2025")
-            const checkInDate = new Date(res.checkIn);
-            checkInDate.setMinutes(checkInDate.getMinutes() + checkInDate.getTimezoneOffset());
-            
-            const checkOutDate = new Date(res.checkOut);
-            checkOutDate.setMinutes(checkOutDate.getMinutes() + checkOutDate.getTimezoneOffset());
+            const checkInRaw = new Date(res.checkIn);
+            const checkOutRaw = new Date(res.checkOut);
+            checkInRaw.setMinutes(checkInRaw.getMinutes() + checkInRaw.getTimezoneOffset());
+            checkOutRaw.setMinutes(checkOutRaw.getMinutes() + checkOutRaw.getTimezoneOffset());
 
             const options = { day: 'numeric', month: 'short', year: 'numeric' };
-            const dateString = `${checkInDate.toLocaleDateString('es-ES', options)} - ${checkOutDate.toLocaleDateString('es-ES', options)}`;
+            const dateString = `${checkInRaw.toLocaleDateString('es-ES', options)} - ${checkOutRaw.toLocaleDateString('es-ES', options)}`;
 
-            // Lógica de Estado Visual
             const hoy = new Date();
-            hoy.setHours(0,0,0,0);
-            
-            let statusText = 'Confirmada';
-            let statusClass = 'confirmed'; // Verde por defecto
-
-            if (checkOutDate < hoy) {
-                statusText = 'Finalizada';
-                statusClass = 'past'; // Gris
-            } else if (checkInDate <= hoy && checkOutDate >= hoy) {
-                statusText = 'En curso';
-                statusClass = 'active'; // Azul
-            }
+            const isPast = new Date(res.checkOut) < hoy;
+            const statusClass = isPast ? 'confirmed' : 'pending'; 
+            const statusText = isPast ? 'Finalizada' : 'Confirmada'; 
 
             card.innerHTML = `
                 <div class="guest-info">
@@ -302,12 +321,10 @@ document.addEventListener('DOMContentLoaded', async function () {
                         <p class="res-property">🏠 ${res.accomodation.title}</p>
                     </div>
                 </div>
-                
                 <div class="res-center">
                     <div class="dates">📅 ${dateString}</div>
                     <div class="status ${statusClass}">${statusText}</div>
                 </div>
-
                 <div class="res-right">
                     <div class="price">$${res.totalPrice}</div>
                     ${statusText !== 'Finalizada' ? 
@@ -318,36 +335,30 @@ document.addEventListener('DOMContentLoaded', async function () {
             container.appendChild(card);
         });
 
-        // Reactivar los botones de cancelar
         document.querySelectorAll('.btn-delete').forEach(btn => {
             btn.addEventListener('click', deleteReservation);
         });
     }
 
-    // --- 5. LOGICA DEL CALENDARIO ---
     function renderCalendar() {
         const grid = document.getElementById('calendar-grid');
         const title = document.getElementById('calendar-month-title');
         
         if (!grid || !title) return;
 
-        // Limpiar días anteriores
         const oldDays = grid.querySelectorAll('.calendar-day:not(.header)');
         oldDays.forEach(day => day.remove());
 
         const year = currentCalendarDate.getFullYear();
         const month = currentCalendarDate.getMonth();
-        
         const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
         title.textContent = `${monthNames[month]} ${year}`;
 
         const firstDayOfMonth = new Date(year, month, 1).getDay(); 
         const daysInMonth = new Date(year, month + 1, 0).getDate(); 
-
-        // Contador de celdas dibujadas (para saber cuántas faltan para llegar a 42)
+        
         let totalCells = 0;
 
-        // 1. Padding inicial (Días vacíos antes del 1)
         for (let i = 0; i < firstDayOfMonth; i++) {
             const emptyDiv = document.createElement('div');
             emptyDiv.className = 'calendar-day empty';
@@ -355,7 +366,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             totalCells++;
         }
 
-        // 2. Días reales
         for (let day = 1; day <= daysInMonth; day++) {
             const dayDiv = document.createElement('div');
             dayDiv.className = 'calendar-day available'; 
@@ -363,55 +373,48 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             const currentDate = new Date(year, month, day);
             currentDate.setHours(0, 0, 0, 0);
-
             const hoy = new Date();
             hoy.setHours(0, 0, 0, 0);
 
-            const reservaEncontrada = myReservations.find(res => {
-                if (res.deletedAt) return false;
+            if (myReservations) {
+                const reservaEncontrada = myReservations.find(res => {
+                    if (res.deletedAt) return false;
+                    const checkIn = new Date(res.checkIn);
+                    checkIn.setMinutes(checkIn.getMinutes() + checkIn.getTimezoneOffset());
+                    checkIn.setHours(0,0,0,0);
+                    const checkOut = new Date(res.checkOut);
+                    checkOut.setMinutes(checkOut.getMinutes() + checkOut.getTimezoneOffset());
+                    checkOut.setHours(0,0,0,0);
+                    return currentDate >= checkIn && currentDate < checkOut;
+                });
 
-                const checkIn = new Date(res.checkIn);
-                checkIn.setMinutes(checkIn.getMinutes() + checkIn.getTimezoneOffset());
-                checkIn.setHours(0,0,0,0);
-
-                const checkOut = new Date(res.checkOut);
-                checkOut.setMinutes(checkOut.getMinutes() + checkOut.getTimezoneOffset());
-                checkOut.setHours(0,0,0,0);
-
-                return currentDate >= checkIn && currentDate < checkOut;
-            });
-
-            if (reservaEncontrada) {
-                if (currentDate < hoy) {
-                     dayDiv.classList.add('booked'); 
-                     dayDiv.style.opacity = '0.5'; 
-                } else if (currentDate.getTime() === hoy.getTime()) {
-                     dayDiv.classList.add('booked');
-                } else {
-                     dayDiv.classList.add('pending');
+                if (reservaEncontrada) {
+                    if (currentDate < hoy) {
+                        dayDiv.classList.add('booked'); 
+                        dayDiv.style.opacity = '0.5'; 
+                    } else if (currentDate.getTime() === hoy.getTime()) {
+                        dayDiv.classList.add('booked');
+                    } else {
+                        dayDiv.classList.add('pending');
+                    }
+                    dayDiv.title = `Reservado por: ${reservaEncontrada.guest?.firstName || 'Usuario'}`;
                 }
-                dayDiv.title = `Reservado por: ${reservaEncontrada.guest?.firstName || 'Usuario'}`;
             }
 
             grid.appendChild(dayDiv);
             totalCells++;
         }
 
-        // Esto evita que el calendario "salte" de altura
-        const totalSlots = 42; // 7 columnas * 6 filas
+        const totalSlots = 42; 
         const remainingSlots = totalSlots - totalCells;
-
         for (let i = 0; i < remainingSlots; i++) {
             const emptyDiv = document.createElement('div');
-            // Le ponemos 'empty' pero con borde suave para que se note la estructura (opcional)
             emptyDiv.className = 'calendar-day empty'; 
-            // Si quieres que se vean los bordes vacíos, usa esto en su lugar:
-            // emptyDiv.style.border = '1px solid #f9f9f9'; 
             grid.appendChild(emptyDiv);
         }
     }
 
-    // --- 6. ACCIONES ---
+    // --- 5. ACCIONES ---
 
     async function deleteReservation(e) {
         const id = e.target.getAttribute('data-id');
@@ -422,171 +425,42 @@ document.addEventListener('DOMContentLoaded', async function () {
                 method: 'DELETE'
             });
             alert('Reserva cancelada');
-            sessionStorage.removeItem(CACHE_KEY);
+            sessionStorage.removeItem(CACHE_KEY); // Limpiar caché para refrescar
             window.location.reload();
         } catch (error) {
             alert('Error al cancelar: ' + error.message);
         }
     }
 
-    // --- 7. EVENT LISTENERS GENERALES ---
+    // --- 6. EVENT LISTENERS ---
     
-    // Calendar controls
+    // Controles Calendario
     const btnPrev = document.getElementById('cal-prev');
     const btnNext = document.getElementById('cal-next');
     const btnToday = document.getElementById('cal-today');
 
-    if(btnPrev) btnPrev.addEventListener('click', () => {
-        currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
-        renderCalendar();
-    });
+    if(btnPrev) btnPrev.addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1); renderCalendar(); });
+    if(btnNext) btnNext.addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1); renderCalendar(); });
+    if(btnToday) btnToday.addEventListener('click', () => { currentCalendarDate = new Date(); renderCalendar(); });
 
-    if(btnNext) btnNext.addEventListener('click', () => {
-        currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
-        renderCalendar();
-    });
-
-    if(btnToday) btnToday.addEventListener('click', () => {
-        currentCalendarDate = new Date();
-        renderCalendar();
-    });
-
-    // --- 8. LÓGICA DE EDICIÓN DE PERFIL (MODAL ACTUALIZADO) ---
-
-    window.openProfileModal = function() {
-        if (!currentUser) return;
-
-        // Rellenar formulario con datos actuales (Manejando nulos con '')
-        document.getElementById('edit-firstname').value = currentUser.firstName || '';
-        document.getElementById('edit-lastname').value = currentUser.lastName || '';
-        document.getElementById('edit-email').value = currentUser.email || '';
-        document.getElementById('edit-phone').value = currentUser.phone || '';
-        document.getElementById('edit-dob').value = currentUser.dateOfBirth || ''; // Formato esperado YYYY-MM-DD
-        document.getElementById('edit-pic-url').value = currentUser.profilePictureUrl || '';
-        
-        document.getElementById('edit-country').value = currentUser.country || '';
-        document.getElementById('edit-province').value = currentUser.province || '';
-        document.getElementById('edit-city').value = currentUser.city || '';
-        
-        document.getElementById('edit-bio').value = currentUser.bio || '';
-
-        // Mostrar modal
-        document.getElementById('profile-modal').style.display = 'flex';
-    };
-
-    window.closeProfileModal = function() {
-        document.getElementById('profile-modal').style.display = 'none';
-    };
-
-    // Manejar envío del formulario
-    const profileForm = document.getElementById('profile-form');
-    if (profileForm) {
-        profileForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const btn = document.getElementById('save-profile-btn');
-            const originalText = btn.textContent;
-            btn.textContent = 'Guardando...';
-            btn.disabled = true;
-
-            try {
-                // 1. Construir Payload COMPLETO según tu Entidad User
-                // Solo enviamos lo que está en el formulario.
-                // IDs, Roles, Password, CreatedAt NO se tocan aquí.
-                const payload = {
-                    firstName: document.getElementById('edit-firstname').value,
-                    lastName: document.getElementById('edit-lastname').value,
-                    email: document.getElementById('edit-email').value,
-                    phone: document.getElementById('edit-phone').value,
-                    dateOfBirth: document.getElementById('edit-dob').value || null, // null si está vacío para evitar error de fecha
-                    profilePictureUrl: document.getElementById('edit-pic-url').value,
-                    
-                    country: document.getElementById('edit-country').value,
-                    province: document.getElementById('edit-province').value,
-                    city: document.getElementById('edit-city').value,
-                    
-                    bio: document.getElementById('edit-bio').value
-                };
-
-                console.log("Enviando actualización de perfil:", payload);
-
-                // 2. Enviar PATCH
-                const userId = localStorage.getItem('userId');
-                const token = localStorage.getItem('jwtToken');
-                
-                const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(errorText || 'Error al actualizar perfil');
-                }
-
-                const updatedUser = await response.json();
-
-                // 3. Actualizar estado local y caché
-                currentUser = updatedUser; 
-                
-                const cachedData = JSON.parse(sessionStorage.getItem(CACHE_KEY) || '{}');
-                cachedData.user = updatedUser;
-                sessionStorage.setItem(CACHE_KEY, JSON.stringify(cachedData));
-
-                // 4. Actualizar UI
-                updateUIUser(currentUser);
-                alert('Perfil actualizado correctamente');
-                closeProfileModal();
-
-            } catch (error) {
-                console.error(error);
-                alert('Error al guardar: ' + error.message);
-            } finally {
-                btn.textContent = originalText;
-                btn.disabled = false;
-            }
-        });
-    }
-
-    // Cerrar modal al hacer clic fuera
-    const modalOverlay = document.getElementById('profile-modal');
-    if (modalOverlay) {
-        modalOverlay.addEventListener('click', function(e) {
-            if (e.target === this) closeProfileModal();
-        });
-    }
-
-    // Logout
+    // Logout Seguro
     const logoutBtn = document.getElementById('logout-btn');
-    
     if (logoutBtn) {
         logoutBtn.addEventListener('click', (e) => {
-            e.preventDefault(); // Evita que el enlace haga cosas raras
-            
-            console.log("Cerrando sesión y limpiando datos...");
-
-            // 1. Limpieza TOTAL de datos
-            localStorage.clear();   // Borra token, userId, userRole, etc.
-            sessionStorage.clear(); // Borra el caché del dashboard (host_dashboard_data)
-
-            // 2. Redirección segura
-            // Usamos .replace() en lugar de .href para que no puedan volver atrás con el botón del navegador
-            window.location.replace('login.html');
+            e.preventDefault();
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.replace('login.html'); // Replace para no volver atrás
         });
-    } else {
-        console.error("Error: No se encontró el botón con id='logout-btn' en el HTML");
     }
 
+    // Botones de Navegación
     const btnHome = document.getElementById('boton-home');
     if (btnHome) btnHome.addEventListener('click', () => window.location.href = 'home.html');
     
     const btnReserva = document.getElementById('btn-reserva');
     if (btnReserva) {
-        btnReserva.addEventListener('click', () => window.location.href = 'adminReser.html');
+        btnReserva.addEventListener('click', () => window.location.href = 'agregarChoza.html');
     }
 
     // Tabs
@@ -599,9 +473,88 @@ document.addEventListener('DOMContentLoaded', async function () {
             tabs.forEach(t => t.classList.remove('active'));
             tabContents.forEach(content => content.classList.remove('active'));
             this.classList.add('active');
-            
             const targetContent = document.getElementById(tabId);
             if(targetContent) targetContent.classList.add('active');
         });
+    });
+
+    // --- MODAL DE EDICIÓN PERFIL ---
+    window.openProfileModal = function() {
+        if (!currentUser) return;
+        document.getElementById('edit-firstname').value = currentUser.firstName || '';
+        document.getElementById('edit-lastname').value = currentUser.lastName || '';
+        document.getElementById('edit-email').value = currentUser.email || '';
+        document.getElementById('edit-phone').value = currentUser.phone || '';
+        document.getElementById('edit-dob').value = currentUser.dateOfBirth || ''; 
+        document.getElementById('edit-pic-url').value = currentUser.profilePictureUrl || '';
+        document.getElementById('edit-country').value = currentUser.country || '';
+        document.getElementById('edit-province').value = currentUser.province || '';
+        document.getElementById('edit-city').value = currentUser.city || '';
+        document.getElementById('edit-bio').value = currentUser.bio || '';
+        
+        document.getElementById('profile-modal').style.display = 'flex';
+    };
+
+    window.closeProfileModal = function() {
+        document.getElementById('profile-modal').style.display = 'none';
+    };
+
+    const profileForm = document.getElementById('profile-form');
+    if (profileForm) {
+        profileForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('save-profile-btn');
+            const originalText = btn.textContent;
+            btn.textContent = 'Guardando...';
+            btn.disabled = true;
+
+            try {
+                const payload = {
+                    firstName: document.getElementById('edit-firstname').value,
+                    lastName: document.getElementById('edit-lastname').value,
+                    email: document.getElementById('edit-email').value,
+                    phone: document.getElementById('edit-phone').value,
+                    dateOfBirth: document.getElementById('edit-dob').value || null,
+                    profilePictureUrl: document.getElementById('edit-pic-url').value,
+                    country: document.getElementById('edit-country').value,
+                    province: document.getElementById('edit-province').value,
+                    city: document.getElementById('edit-city').value,
+                    bio: document.getElementById('edit-bio').value
+                };
+
+                const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error('Error al actualizar perfil');
+
+                const updatedUser = await response.json();
+                currentUser = updatedUser; 
+                
+                // Actualizar caché solo con los datos del usuario (mantener reservas)
+                try {
+                    const cached = JSON.parse(sessionStorage.getItem(CACHE_KEY) || '{}');
+                    cached.user = updatedUser;
+                    sessionStorage.setItem(CACHE_KEY, JSON.stringify(cached));
+                } catch(err) { console.warn("No se pudo actualizar caché"); }
+
+                updateUIUser(currentUser);
+                alert('Perfil actualizado correctamente');
+                closeProfileModal();
+
+            } catch (error) {
+                console.error(error);
+                alert('Error: ' + error.message);
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
+    }
+
+    document.getElementById('profile-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeProfileModal();
     });
 });
