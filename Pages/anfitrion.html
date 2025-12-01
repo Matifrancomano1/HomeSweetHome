@@ -31,7 +31,7 @@
                     <div class="user-avatar">Us</div>
                     <div>
                         <div class="user-name" id="sidebar-name">Cargando...</div>
-                        <div class="user-role" id="user-role-display">...</div>
+                        <div class="user-role" id="user-role-display" style="font-size: 0.8rem; color: #888;">...</div>
                     </div>
                 </div>
             </div>
@@ -39,7 +39,8 @@
             <ul class="sidebar-menu">
                 <li><a href="#" class="active"><span>📊</span> <span>Dashboard</span></a></li>
                 <li><a href="agregarChoza.html"><span>➕</span> <span>Agregar Alojamiento</span></a></li>
-                <li><a href="#"><span>🚪</span> <span>Cerrar Sesión</span></a></li>
+                <li><a href="#" onclick="openProfileModal()"><span>✎</span> <span>Editar Perfil</span></a></li>
+                <li><a href="#" id="logout-btn"><span>🚪</span> <span>Cerrar Sesión</span></a></li>
             </ul>
         </aside>
         
@@ -50,10 +51,6 @@
                     <h2 id="welcome-msg">Bienvenido...</h2>
                     <p>Gestiona tus reservas y propiedades</p>
                 </div>
-                <div class="header-actions">
-                    <button id="btn-reserva" onclick="redirectAdminReserva()" class="action-btn btn-primary">Nueva Reserva</button>
-                </div>
-
             </div>
             
             <!-- Statistics -->
@@ -147,6 +144,78 @@
             </div>
             
         </main>
+    </div>
+
+    <div id="profile-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;"> 
+            <div class="modal-header">
+                <h3>Editar Perfil</h3>
+            </div>
+            
+            <form id="profile-form">
+                <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                    
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label>Nombre <span class="required">*</span></label>
+                            <input type="text" id="edit-firstname" required>
+                        </div>
+                        <div class="form-group half">
+                            <label>Apellido <span class="required">*</span></label>
+                            <input type="text" id="edit-lastname" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label>Email <span class="required">*</span></label>
+                            <input type="email" id="edit-email" required>
+                        </div>
+                        <div class="form-group half">
+                            <label>Teléfono</label>
+                            <input type="tel" id="edit-phone" placeholder="+54 9 11...">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label>Fecha de Nacimiento</label>
+                            <input type="date" id="edit-dob">
+                        </div>
+                        <div class="form-group half">
+                            <label>URL Foto de Perfil</label>
+                            <input type="url" id="edit-pic-url" placeholder="https://...">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group" style="flex:1">
+                            <label>País</label>
+                            <input type="text" id="edit-country">
+                        </div>
+                        <div class="form-group" style="flex:1; margin-left: 10px; margin-right: 10px;">
+                            <label>Provincia</label>
+                            <input type="text" id="edit-province">
+                        </div>
+                        <div class="form-group" style="flex:1">
+                            <label>Ciudad</label>
+                            <input type="text" id="edit-city">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Sobre mí</label>
+                        <textarea id="edit-bio" rows="3" placeholder="Cuéntanos algo sobre ti..." maxlength="500"></textarea>
+                        <small style="color:#999; font-size: 0.8em;">Máx. 500 caracteres</small>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeProfileModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="save-profile-btn">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script src="../config.js"></script>

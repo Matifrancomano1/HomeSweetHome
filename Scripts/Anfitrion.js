@@ -397,7 +397,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             totalCells++;
         }
 
-        // 3. Padding final (Rellenar hasta llegar a 42 celdas - 6 semanas)
         // Esto evita que el calendario "salte" de altura
         const totalSlots = 42; // 7 columnas * 6 filas
         const remainingSlots = totalSlots - totalCells;
@@ -452,15 +451,134 @@ document.addEventListener('DOMContentLoaded', async function () {
         renderCalendar();
     });
 
+    // --- 8. LÓGICA DE EDICIÓN DE PERFIL (MODAL ACTUALIZADO) ---
+
+    window.openProfileModal = function() {
+        if (!currentUser) return;
+
+        // Rellenar formulario con datos actuales (Manejando nulos con '')
+        document.getElementById('edit-firstname').value = currentUser.firstName || '';
+        document.getElementById('edit-lastname').value = currentUser.lastName || '';
+        document.getElementById('edit-email').value = currentUser.email || '';
+        document.getElementById('edit-phone').value = currentUser.phone || '';
+        document.getElementById('edit-dob').value = currentUser.dateOfBirth || ''; // Formato esperado YYYY-MM-DD
+        document.getElementById('edit-pic-url').value = currentUser.profilePictureUrl || '';
+        
+        document.getElementById('edit-country').value = currentUser.country || '';
+        document.getElementById('edit-province').value = currentUser.province || '';
+        document.getElementById('edit-city').value = currentUser.city || '';
+        
+        document.getElementById('edit-bio').value = currentUser.bio || '';
+
+        // Mostrar modal
+        document.getElementById('profile-modal').style.display = 'flex';
+    };
+
+    window.closeProfileModal = function() {
+        document.getElementById('profile-modal').style.display = 'none';
+    };
+
+    // Manejar envío del formulario
+    const profileForm = document.getElementById('profile-form');
+    if (profileForm) {
+        profileForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('save-profile-btn');
+            const originalText = btn.textContent;
+            btn.textContent = 'Guardando...';
+            btn.disabled = true;
+
+            try {
+                // 1. Construir Payload COMPLETO según tu Entidad User
+                // Solo enviamos lo que está en el formulario.
+                // IDs, Roles, Password, CreatedAt NO se tocan aquí.
+                const payload = {
+                    firstName: document.getElementById('edit-firstname').value,
+                    lastName: document.getElementById('edit-lastname').value,
+                    email: document.getElementById('edit-email').value,
+                    phone: document.getElementById('edit-phone').value,
+                    dateOfBirth: document.getElementById('edit-dob').value || null, // null si está vacío para evitar error de fecha
+                    profilePictureUrl: document.getElementById('edit-pic-url').value,
+                    
+                    country: document.getElementById('edit-country').value,
+                    province: document.getElementById('edit-province').value,
+                    city: document.getElementById('edit-city').value,
+                    
+                    bio: document.getElementById('edit-bio').value
+                };
+
+                console.log("Enviando actualización de perfil:", payload);
+
+                // 2. Enviar PATCH
+                const userId = localStorage.getItem('userId');
+                const token = localStorage.getItem('jwtToken');
+                
+                const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Error al actualizar perfil');
+                }
+
+                const updatedUser = await response.json();
+
+                // 3. Actualizar estado local y caché
+                currentUser = updatedUser; 
+                
+                const cachedData = JSON.parse(sessionStorage.getItem(CACHE_KEY) || '{}');
+                cachedData.user = updatedUser;
+                sessionStorage.setItem(CACHE_KEY, JSON.stringify(cachedData));
+
+                // 4. Actualizar UI
+                updateUIUser(currentUser);
+                alert('Perfil actualizado correctamente');
+                closeProfileModal();
+
+            } catch (error) {
+                console.error(error);
+                alert('Error al guardar: ' + error.message);
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
+    }
+
+    // Cerrar modal al hacer clic fuera
+    const modalOverlay = document.getElementById('profile-modal');
+    if (modalOverlay) {
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === this) closeProfileModal();
+        });
+    }
+
     // Logout
     const logoutBtn = document.getElementById('logout-btn');
+    
     if (logoutBtn) {
         logoutBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.clear();
-            sessionStorage.clear();
-            window.location.href = 'login.html';
+            e.preventDefault(); // Evita que el enlace haga cosas raras
+            
+            console.log("Cerrando sesión y limpiando datos...");
+
+            // 1. Limpieza TOTAL de datos
+            localStorage.clear();   // Borra token, userId, userRole, etc.
+            sessionStorage.clear(); // Borra el caché del dashboard (host_dashboard_data)
+
+            // 2. Redirección segura
+            // Usamos .replace() en lugar de .href para que no puedan volver atrás con el botón del navegador
+            window.location.replace('login.html');
         });
+    } else {
+        console.error("Error: No se encontró el botón con id='logout-btn' en el HTML");
     }
 
     const btnHome = document.getElementById('boton-home');

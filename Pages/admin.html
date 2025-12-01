@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HomeSweetHome | Administración</title>
+    <link rel="stylesheet" href="../Styles/style.css">
+    <link rel="stylesheet" href="../Styles/admin.css">
+    <!-- Reutilizamos estilos de modal del anfitrion si quieres, o definimos nuevos en admin.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    
+    <header>
+        <div class="navbar">
+            <div class="logo">
+                <svg class="logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="var(--primary)">
+                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11V11.99z"/>
+                </svg>
+                <h1>Admin Panel</h1>
+            </div>
+            <div class="user-menu">
+                <span id="admin-name" style="margin-right: 15px; font-weight: 600;">Admin</span>
+                <a href="#" class="btn-exit" id="logout-btn">
+                    Cerrar sesión
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="admin-container">
+        
+        <div class="page-header">
+            <div>
+                <h2>Gestión de Usuarios</h2>
+                <p>Administra, edita o elimina usuarios de la plataforma.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openUserModal()">
+                <i class="fas fa-plus"></i> Nuevo Usuario
+            </button>
+        </div>
+
+        <!-- BARRA DE HERRAMIENTAS (Search, Filter, Sort) -->
+        <div class="toolbar">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="search-input" placeholder="Buscar usuarios...">
+            </div>
+
+            <div class="filters">
+                <div class="filter-group">
+                    <label>Filtrar por:</label>
+                    <select id="filter-field">
+                        <option value="all">Todo</option>
+                        <option value="firstName">Nombre</option>
+                        <option value="email">Email</option>
+                        <option value="role">Rol</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Ordenar:</label>
+                    <select id="sort-field">
+                        <option value="id-asc">ID (Asc)</option>
+                        <option value="id-desc">ID (Desc)</option>
+                        <option value="name-asc">Nombre (A-Z)</option>
+                        <option value="name-desc">Nombre (Z-A)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLA DE DATOS -->
+        <div class="table-container card-style">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Ubicación</th>
+                        <th>Telefono</th>
+                        <th>Nacimiento</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table-body">
+                    <!-- JS inyectará las filas aquí -->
+                </tbody>
+            </table>
+            <div id="no-results" style="display:none; padding: 2rem; text-align: center; color: #666;">
+                No se encontraron usuarios con esos criterios.
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL PARA AGREGAR/EDITAR USUARIO -->
+    <div id="user-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Nuevo Usuario</h3>
+                <button class="close-btn" onclick="closeUserModal()">×</button>
+            </div>
+            <form id="user-form">
+                <input type="hidden" id="user-id"> <!-- ID oculto para saber si es edit -->
+                
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label>Nombre <span class="required">*</span></label>
+                            <input type="text" id="input-firstname" required>
+                        </div>
+                        <div class="form-group half">
+                            <label>Apellido <span class="required">*</span></label>
+                            <input type="text" id="input-lastname" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email <span class="required">*</span></label>
+                        <input type="email" id="input-email" required>
+                    </div>
+
+                    <!-- Password solo visible al crear -->
+                    <div class="form-group" id="password-group">
+                        <label>Contraseña <span class="required">*</span></label>
+                        <input type="password" id="input-password">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label>Rol</label>
+                            <select id="input-role">
+                                <option value="GUEST">Huésped</option>
+                                <option value="HOST">Anfitrión</option>
+                                <option value="ADMIN">Administrador</option>
+                            </select>
+                        </div>
+                        <div class="form-group half">
+                            <label>Estado</label>
+                            <select id="input-active">
+                                <option value="true">Activo</option>
+                                <option value="false">Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeUserModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="save-btn">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../config.js"></script>
+    <script src="../Scripts/Admin.js"></script>
+</body>
+</html>

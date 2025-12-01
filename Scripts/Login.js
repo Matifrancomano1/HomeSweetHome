@@ -1,12 +1,12 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Form toggling
+    
+    // --- ELEMENTOS DEL DOM ---
     const loginTab = document.getElementById('login-tab');
     const registerTab = document.getElementById('register-tab');
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
 
-
-    // Cambiar entre tabs de Login y Registro
+    // --- TOGGLE ENTRE TABS ---
     loginTab.addEventListener('click', function () {
         loginTab.classList.add('active');
         registerTab.classList.remove('active');
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
         loginForm.style.display = 'none';
     });
 
-    // Toggle de visibilidad de contraseñas
+    // --- VISIBILIDAD DE CONTRASEÑAS ---
     document.getElementById('toggle-login-password').addEventListener('click', function () {
         const passwordField = document.getElementById('login-password');
         togglePasswordVisibility(passwordField, this);
@@ -35,24 +35,24 @@ document.addEventListener('DOMContentLoaded', function () {
     function togglePasswordVisibility(field, icon) {
         if (field.type === 'password') {
             field.type = 'text';
-            icon.textContent = '🔒';  // Cambiar ícono a cerrado
+            icon.textContent = '🔒'; 
         } else {
             field.type = 'password';
-            icon.textContent = '👁️';  // Cambiar ícono a abierto
+            icon.textContent = '👁️'; 
         }
     }
 
-    // Validación del formulario de Login
+    // ==========================================
+    //  LÓGICA DE LOGIN 
+    // ==========================================
     document.getElementById('login-form').addEventListener('submit', function (e) {
         e.preventDefault();
         const email = document.getElementById('login-email').value.trim();
         const password = document.getElementById('login-password').value.trim();
         let isValid = true;
 
-        // Resetear errores
         resetErrors('login');
 
-        // Validación del correo
         if (!email) {
             showError('login-email', 'Por favor ingresa tu correo electrónico');
             isValid = false;
@@ -61,110 +61,90 @@ document.addEventListener('DOMContentLoaded', function () {
             isValid = false;
         }
 
-        // Validación de la contraseña
         if (!password) {
             showError('login-password', 'Por favor ingresa tu contraseña');
             isValid = false;
         }
 
         if (isValid) {
-            const loginData = {
-                email: email,
-                password: password
-            };
+            const loginData = { email: email, password: password };
 
             fetch(`${API_BASE_URL}/auth/login`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(loginData),
             })
-                .then(response => {
-                    if (!response.ok) {
-                        // si no da status 2xx, lanza error
-                        throw new Error('Email o contraseña incorrectos');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log("Login Response Data:", data); // DEBUG: Ver qué devuelve el backend
-                    // Guardamos datos en el localstorage
-                    // INTENTO DE RECUPERACIÓN ROBUSTA:
-                    const token = data.accessToken || data.token || data.jwt;
-                    localStorage.setItem('jwtToken', token);
-                    localStorage.setItem('userEmail', data.email);
-                    localStorage.setItem('userId', data.id);
-                    localStorage.setItem('usuarioName', data.firstName)
+            .then(response => {
+                if (!response.ok) throw new Error('Email o contraseña incorrectos');
+                return response.json();
+            })
+            .then(data => {
+                console.log("Login Response:", data);
 
-                    alert('Inicio de sesion exitoso! Redirigiendo...');
+                // 1. GUARDAR DATOS EN STORAGE
+                const token = data.accessToken || data.token || data.jwt;
+                if (!token) {
+                    throw new Error('No se recibio el token de autenticacion');
+                }                
+                
+                localStorage.setItem('jwtToken', token);
+                localStorage.setItem('userEmail', data.email);
+                localStorage.setItem('userId', data.id);
+                localStorage.setItem('usuarioName', data.firstName);
+                localStorage.setItem('userRole', data.role);
+                
+                // Guardamos el ROL 
+                const userRole = data.role;
+
+                // 2. REDIRECCIÓN SEGÚN ROL 
+                alert(`¡Bienvenido ${data.firstName}! Redirigiendo...`);
+
+                if (userRole === 'ADMIN') {
+                    window.location.href = 'admin.html';
+                } else if (userRole === 'HOST') {
+                    window.location.href = 'anfitrion.html';
+                } else {
                     window.location.href = 'home.html';
-                })
-                .catch(error => {
-                    // error
-                    console.error('Error de login:', error);
-                    showError('login-password', error.message);
-                })
+                }
+            })
+            .catch(error => {
+                console.error('Error de login:', error);
+                showError('login-password', 'Email o contraseña incorrectos');
+            });
         }
     });
 
-    // Validación del formulario de Registro
+    // ==========================================
+    //  LÓGICA DE REGISTRO
+    // ==========================================
     document.getElementById('register-form').addEventListener('submit', function (e) {
         e.preventDefault();
+        
         const firstName = document.getElementById('register-firstname').value.trim();
         const lastName = document.getElementById('register-lastname').value.trim();
         const email = document.getElementById('register-email').value.trim();
         const password = document.getElementById('register-password').value.trim();
         const confirmPassword = document.getElementById('register-confirm-password').value.trim();
+        
+        // [CORRECCIÓN] Faltaba capturar el rol del select, si no existe el select, por defecto GUEST
+        const roleSelect = document.getElementById('register-role'); 
+        const role = roleSelect ? roleSelect.value : 'GUEST'; 
+
         let isValid = true;
 
-        // Resetear errores
         resetErrors('register');
 
-        // Validación de nombre
-        if (!firstName) {
-            showError('register-firstname', 'Por favor ingresa tu nombre');
-            isValid = false;
-        }
+        if (!firstName) { showError('register-firstname', 'Ingresa tu nombre'); isValid = false; }
+        if (!lastName) { showError('register-lastname', 'Ingresa tu apellido'); isValid = false; }
+        
+        if (!email) { showError('register-email', 'Ingresa tu correo'); isValid = false; }
+        else if (!validateEmail(email)) { showError('register-email', 'Correo inválido'); isValid = false; }
 
-        // Validación de apellido
-        if (!lastName) {
-            showError('register-lastname', 'Por favor ingresa tu apellido');
-            isValid = false;
-        }
+        if (!password) { showError('register-password', 'Ingresa contraseña'); isValid = false; }
+        else if (password.length < 8) { showError('register-password', 'Mínimo 8 caracteres'); isValid = false; }
 
-        // Validación del correo
-        if (!email) {
-            showError('register-email', 'Por favor ingresa tu correo electrónico');
-            isValid = false;
-        } else if (!validateEmail(email)) {
-            showError('register-email', 'Por favor ingresa un correo electrónico válido');
-            isValid = false;
-        }
-
-        // Validación de contraseña
-        if (!password) {
-            showError('register-password', 'Por favor ingresa una contraseña');
-            isValid = false;
-        } else if (password.length < 8) {
-            showError('register-password', 'La contraseña debe tener al menos 8 caracteres');
-            isValid = false;
-        }
-
-        // Validación de confirmación de contraseña
-        if (!confirmPassword) {
-            showError('register-confirm-password', 'Por favor confirma tu contraseña');
-            isValid = false;
-        } else if (password !== confirmPassword) {
-            showError('register-confirm-password', 'Las contraseñas no coinciden');
-            isValid = false;
-        }
-
-        // Validacion de rol
-        if (!role) {
-            showError('reister-role', 'Por favor selecciona un rol');
-            isValid = false;
-        }
+        if (!confirmPassword) { showError('register-confirm-password', 'Confirma contraseña'); isValid = false; }
+        else if (password !== confirmPassword) { showError('register-confirm-password', 'No coinciden'); isValid = false; }
 
         if (isValid) {
             const registerData = {
@@ -175,50 +155,43 @@ document.addEventListener('DOMContentLoaded', function () {
                 role: role
             };
 
-            fetch(`${API_BASE_URL}/users`, {
+            fetch(`${API_BASE_URL}/auth/register`, { // Asegúrate que la ruta sea correcta (/auth/register o /users)
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(registerData)
             })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(err => {
-                            throw new Error(err.message || 'Error en el registro');
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Registro exitoso: ', data);
-                    alert('Registro exitoso! Por favor, iniciar sesión.');
-
-                    loginTab.click();
-                })
-                .catch(error => {
-                    console.error('Error de registro:', error);
-                    showError('register-email', 'El correo electronico ya esta en uso');
-                })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.message || 'Error en registro'); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Registro exitoso:', data);
+                alert('¡Registro exitoso! Por favor inicia sesión.');
+                loginTab.click(); // Cambiar al tab de login automáticamente
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('register-email', 'Hubo un error (posiblemente el email ya existe).');
+            });
         }
     });
 
-    // Función para mostrar los errores
+    // --- HELPERS ---
     function showError(fieldId, message) {
         const errorElement = document.getElementById(`${fieldId}-error`);
-        errorElement.textContent = message;
-        errorElement.style.display = 'block';
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
     }
 
-    // Función para resetear los errores
     function resetErrors(formType) {
         const errorElements = document.querySelectorAll(`#${formType}-form .error-message`);
-        errorElements.forEach(el => {
-            el.style.display = 'none';
-        });
+        errorElements.forEach(el => el.style.display = 'none');
     }
 
-    // Función para validar el formato del correo electrónico
     function validateEmail(email) {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return re.test(email);
