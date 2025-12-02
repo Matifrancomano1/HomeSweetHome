@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // --- CARGAR RESERVAS ---
     async function loadAndBlockDates(accId) {
         try {
-            const res = await fetch(`${API_BASE_URL}/reservations/accommodation/${accId}`);
+            const res = await fetch(`${API_BASE_URL}/reservations/accomodations/${accId}`);
             
             if (!res.ok) {
                 const resAll = await fetch(`${API_BASE_URL}/reservations`);
