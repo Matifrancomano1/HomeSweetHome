@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 role: role
             };
 
-            fetch(`${API_BASE_URL}/auth/register`, { // Asegúrate que la ruta sea correcta (/auth/register o /users)
+            fetch(`${API_BASE_URL}/user`, { // Asegúrate que la ruta sea correcta (/auth/register o /users)
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(registerData)
