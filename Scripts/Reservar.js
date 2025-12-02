@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', async function () {
     
-    // 1. OBTENER ID
+    // --- 1. OBTENER ID DE LA URL ---
     const urlParams = new URLSearchParams(window.location.search);
     const accommodationId = urlParams.get('id');
 
@@ -22,14 +22,14 @@ document.addEventListener('DOMContentLoaded', async function () {
     const guestNameInput = document.getElementById('guest-name');
     const guestEmailInput = document.getElementById('guest-email');
 
-    // --- VARIABLES ---
+    // --- VARIABLES GLOBALES ---
     let NIGHTLY_RATE = 0;
     const CLEANING_FEE = 20; 
     const SERVICE_FEE = 15;
     let currentTotal = 0;
     let bookedDates = []; 
 
-    // --- DEFINICIÓN DE PICKERS (IMPORTANTE: GLOBAL) ---
+    // --- DEFINICIÓN DE PICKERS ---
     let checkinPicker = null;
     let checkoutPicker = null;
 
@@ -50,28 +50,26 @@ document.addEventListener('DOMContentLoaded', async function () {
         if(loginWarning) loginWarning.style.display = 'block';
     }
 
-    // --- 3. CARGAR DATOS ---
+    // --- 3. CARGAR DATOS DEL ALOJAMIENTO ---
     try {
         const response = await fetch(`${API_BASE_URL}/accomodations/${accommodationId}`);
-        if (!response.ok) throw new Error('Error al cargar');
+        if (!response.ok) throw new Error('Error al cargar el alojamiento');
         const accommodation = await response.json();
 
-        // UI
+        // A. Datos Principales
         const titleElem = document.querySelector('.property-title');
         const locElem = document.querySelector('.property-location span');
-        const imgElem = document.querySelector('.main-image');
 
         if(titleElem) titleElem.textContent = accommodation.title;
         if(locElem) locElem.textContent = `📍 ${accommodation.location?.city || ''}, ${accommodation.location?.country || ''}`;
         
         NIGHTLY_RATE = accommodation.pricePerNight || 0;
 
-        // Imágenes (Principal y Secundarias)
+        // B. Imágenes
         if (accommodation.images && accommodation.images.length > 0) {
-            // Principal
-            if (imgElem) imgElem.style.backgroundImage = `url('${accommodation.images[0].url}')`;
+            const mainImg = document.querySelector('.main-image');
+            if (mainImg) mainImg.style.backgroundImage = `url('${accommodation.images[0].url}')`;
             
-            // Secundarias
             const secondaryDivs = document.querySelectorAll('.secondary-image');
             secondaryDivs.forEach((div, index) => {
                 const imgIndex = index + 1; 
@@ -84,22 +82,93 @@ document.addEventListener('DOMContentLoaded', async function () {
             });
         }
 
-        // CARGAR FECHAS OCUPADAS
-        await loadAndBlockDates(accommodationId);
+        // C. Amenities Dinámicas
+        renderAmenities(accommodation.amenities);
 
-        // INICIAR CALENDARIO
+        // D. Información del Anfitrión Dinámica
+        renderHostInfo(accommodation.host);
+
+        // E. Cargar Fechas y Calendario
+        await loadAndBlockDates(accommodationId);
         initCalendar();
         calculateTotal();
 
     } catch (error) {
-        console.error(error);
+        console.error("Error:", error);
     }
 
-    // --- HELPER FECHAS (TIMEZONE SAFE) ---
+    // --- FUNCIONES DE RENDERIZADO ---
+
+    function renderAmenities(amenities) {
+        const container = document.getElementById('amenities-container');
+        if (!container) return;
+        container.innerHTML = '';
+
+        if (!amenities || amenities.length === 0) {
+            container.innerHTML = '<p>No se especificaron comodidades.</p>';
+            return;
+        }
+
+        // Mapa de iconos simples
+        const iconMap = {
+            'Wifi': '📶', 'Wi-Fi': '📶', 'Internet': '🌐',
+            'Piscina': '🏊‍♂️', 'Pool': '🏊‍♂️',
+            'Cocina': '🍳', 'Kitchen': '🍳',
+            'Estacionamiento': '🅿️', 'Parking': '🅿️',
+            'Aire': '❄️', 'AC': '❄️',
+            'TV': '📺',
+            'Pet': '🐾', 'Mascotas': '🐾'
+        };
+
+        amenities.forEach(am => {
+            const div = document.createElement('div');
+            div.className = 'amenity-item';
+            
+            // Buscar icono o usar default
+            const icon = Object.keys(iconMap).find(key => am.name.includes(key)) 
+                        ? iconMap[Object.keys(iconMap).find(key => am.name.includes(key))] 
+                        : '✅';
+
+            div.innerHTML = `
+                <span class="amenity-icon">${icon}</span>
+                <span>${am.name}</span>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function renderHostInfo(host) {
+        const container = document.getElementById('host-info-container');
+        if (!host || !container) return;
+
+        container.style.display = 'flex'; // Mostrar sección
+        const avatar = container.querySelector('.host-avatar');
+        const name = container.querySelector('h4');
+        const desc = container.querySelector('p');
+
+        if (name) name.textContent = `${host.firstName} ${host.lastName}`;
+        if (desc) desc.textContent = `Anfitrión · ${host.email}`;
+
+        if (avatar) {
+            if (host.profilePictureUrl) {
+                avatar.style.backgroundImage = `url('${host.profilePictureUrl}')`;
+                avatar.textContent = '';
+            } else {
+                avatar.style.backgroundImage = 'none';
+                avatar.style.backgroundColor = 'var(--primary)';
+                avatar.style.color = 'white';
+                avatar.style.display = 'flex';
+                avatar.style.alignItems = 'center';
+                avatar.style.justifyContent = 'center';
+                avatar.textContent = host.firstName.charAt(0).toUpperCase();
+            }
+        }
+    }
+
+    // --- HELPER FECHAS ---
     function normalizeDate(dateInput) {
         if (!dateInput) return null;
         const date = new Date(dateInput);
-        // Ajustamos la zona horaria para obtener la fecha calendario correcta (YYYY-MM-DD)
         const userTimezoneOffset = date.getTimezoneOffset() * 60000;
         const adjustedDate = new Date(date.getTime() + userTimezoneOffset);
         return adjustedDate.toISOString().split('T')[0];
@@ -108,44 +177,31 @@ document.addEventListener('DOMContentLoaded', async function () {
     // --- CARGAR RESERVAS ---
     async function loadAndBlockDates(accId) {
         try {
-            // Usamos el endpoint específico si existe, o filtramos
-            // Nota: Si tienes el endpoint específico /accommodation/{id}, úsalo aquí.
             const res = await fetch(`${API_BASE_URL}/reservations/accommodation/${accId}`);
             
-            // Fallback si el endpoint específico no existe (404/403), intentamos el general
+            // Fallback si endpoint específico no existe
             if (!res.ok) {
-                console.warn("Endpoint específico falló, intentando general...");
                 const resAll = await fetch(`${API_BASE_URL}/reservations`);
                 if (!resAll.ok) return;
                 const all = await resAll.json();
+                const filtered = all.filter(r => String(r.accomodation.id) === String(accId) && !r.deletedAt);
                 
-                // Filtramos manual
-                const myReservations = all.filter(r => 
-                    String(r.accomodation.id) === String(accId) && !r.deletedAt
-                );
-                
-                bookedDates = myReservations.map(r => ({
-                    from: normalizeDate(r.checkIn),
-                    to: normalizeDate(r.checkOut)
-                }));
+                bookedDates = filtered.map(r => ({ from: normalizeDate(r.checkIn), to: normalizeDate(r.checkOut) }));
                 return;
             }
 
             const myReservations = await res.json();
-            // Filtramos solo las no borradas
             const activeReservations = myReservations.filter(r => !r.deletedAt);
-
+            
             bookedDates = activeReservations.map(r => ({
                 from: normalizeDate(r.checkIn),
                 to: normalizeDate(r.checkOut)
             }));
 
-            console.log("Fechas bloqueadas cargadas:", bookedDates.length);
-
-        } catch (e) { console.error("Error cargando ocupación:", e); }
+        } catch (e) { console.error(e); }
     }
 
-    // --- CALENDARIO (FLATPICKR) ---
+    // --- CALENDARIO ---
     function initCalendar() {
         const commonConfig = {
             dateFormat: "Y-m-d",
@@ -155,23 +211,19 @@ document.addEventListener('DOMContentLoaded', async function () {
             disableMobile: true
         };
 
-        // CHECK-IN
         checkinPicker = flatpickr("#checkin-date", {
             ...commonConfig,
-            onChange: function(selectedDates, dateStr) {
+            onChange: function(selectedDates) {
                 if (selectedDates[0]) {
                     const minCheckout = new Date(selectedDates[0]);
-                    minCheckout.setDate(minCheckout.getDate() + 1); // Salida mín. 1 día después
+                    minCheckout.setDate(minCheckout.getDate() + 1);
                     
                     if (checkoutPicker) {
                         checkoutPicker.set('minDate', minCheckout);
-                        
-                        // Si la fecha de salida seleccionada ya no es válida, la borramos
                         const currentCheckout = checkoutPicker.selectedDates[0];
                         if (currentCheckout && currentCheckout <= selectedDates[0]) {
                             checkoutPicker.clear();
                         }
-                        // Abrir checkout automáticamente
                         setTimeout(() => checkoutPicker.open(), 100);
                     }
                 }
@@ -179,20 +231,16 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         });
 
-        // CHECK-OUT
         checkoutPicker = flatpickr("#checkout-date", {
             ...commonConfig,
-            onChange: function() {
-                calculateTotal();
-            }
+            onChange: function() { calculateTotal(); }
         });
     }
 
-    // --- CÁLCULO PRECIOS ---
+    // --- PRECIOS ---
     function calculateTotal() {
         const checkinInput = document.getElementById('checkin-date');
         const checkoutInput = document.getElementById('checkout-date');
-        
         if (!checkinInput || !checkoutInput) return;
 
         const checkinVal = checkinInput.value;
@@ -219,7 +267,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         }
 
-        // Reset
         priceItems[0].innerHTML = `<span>$${NIGHTLY_RATE} x 0 noches</span><span>$0</span>`;
         priceTotalElement.textContent = `$0`;
         if (confirmBtn) {
@@ -228,7 +275,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    // --- CONFIRMAR ---
+    // --- ACCIÓN DE RESERVAR ---
     if (confirmBtn) {
         confirmBtn.addEventListener('click', async function () {
             if (!isLoggedIn) return;
@@ -273,21 +320,16 @@ document.addEventListener('DOMContentLoaded', async function () {
                     }
                 }
 
-                // ÉXITO
                 if (successMessage) {
                     successMessage.style.display = 'block';
                     successMessage.scrollIntoView({ behavior: 'smooth' });
                 }
                 confirmBtn.style.display = 'none';
-
                 alert("¡Tu reserva se ha realizado con éxito!");
-
-                // Recargar fechas bloqueadas para mostrar el cambio visual
+                
                 await loadAndBlockDates(accommodationId);
-                // Reiniciar calendarios con las nuevas fechas bloqueadas
                 initCalendar(); 
                 
-                // Reset visual del botón (por si quieren reservar otra cosa, aunque ya ocultamos el botón)
                 confirmBtn.textContent = "Reserva Confirmada";
 
             } catch (error) {
@@ -298,4 +340,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         });
     }
+    
+    // Volver al Home
+    const btnHome = document.getElementById('btn-home');
+    if(btnHome) btnHome.addEventListener('click', () => window.location.href = 'home.html');
 });

@@ -21,12 +21,11 @@
         </a>
         <div class="navbar">
             <div class="logo">
-                <button id="btn-home">
+                <button id="btn-home" style="background:none; border:none; cursor:pointer; display:flex; align-items:center; gap:5px;">
                     <svg width="40" height="40" viewBox="0 0 24 24" fill="var(--primary)">
-                        <path
-                            d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11V11.99z" />
+                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11V11.99z" />
                     </svg>
-                    <h1>HomeSweetHome</h1>
+                    <h1 style="font-size:1.5rem; color:var(--primary);">HomeSweetHome</h1>
                 </button>
             </div>
         </div>
@@ -35,55 +34,32 @@
     <div class="main-container">
         <div class="property-section">
             <div class="property-header">
-                <h2 class="property-title">Encantadora Casa frente al Mar</h2>
+                <h2 class="property-title">Cargando alojamiento...</h2>
                 <div class="property-location">
-                    <span>📍 Playa del Carmen, Quintana Roo</span>
+                    <span></span>
                 </div>
             </div>
 
             <div class="property-images">
-                <div class="main-image" style="background-image: url('https://placehold.co/800x600')"></div>
+                <div class="main-image" style="background-color: #eee;"></div>
                 <div class="secondary-images">
-                    <div class="secondary-image" style="background-image: url('https://placehold.co/400x300')"></div>
-                    <div class="secondary-image" style="background-image: url('https://placehold.co/400x300')"></div>
+                    <div class="secondary-image" style="background-color: #eee;"></div>
+                    <div class="secondary-image" style="background-color: #eee;"></div>
                 </div>
             </div>
 
             <div class="amenities">
                 <h3 class="section-title">Comodidades</h3>
-                <div class="amenities-grid">
-                    <div class="amenity-item">
-                        <span class="amenity-icon">🏊‍♂️</span>
-                        <span>Piscina privada</span>
-                    </div>
-                    <div class="amenity-item">
-                        <span class="amenity-icon">🌊</span>
-                        <span>Vista al mar</span>
-                    </div>
-                    <div class="amenity-item">
-                        <span class="amenity-icon">🅿️</span>
-                        <span>Estacionamiento</span>
-                    </div>
-                    <div class="amenity-item">
-                        <span class="amenity-icon">🍳</span>
-                        <span>Cocina completa</span>
-                    </div>
-                    <div class="amenity-item">
-                        <span class="amenity-icon">📶</span>
-                        <span>Wi-Fi rápido</span>
-                    </div>
-                    <div class="amenity-item">
-                        <span class="amenity-icon">🐾</span>
-                        <span>Mascotas permitidas</span>
-                    </div>
+                <div class="amenities-grid" id="amenities-container">
+                    <p style="color:#777;">Cargando comodidades...</p>
                 </div>
             </div>
 
-            <div class="host-info">
-                <div class="host-avatar" style="background-image: url('https://placehold.co/100x100')"></div>
+            <div class="host-info" id="host-info-container" style="display:none;">
+                <div class="host-avatar"></div>
                 <div class="host-details">
-                    <h4>Ana Martínez</h4>
-                    <p>Anfitriona Superhost · 4.95 ⭐ (128 reseñas)</p>
+                    <h4></h4>
+                    <p></p>
                 </div>
             </div>
         </div>
@@ -109,25 +85,24 @@
                 <div class="price-summary">
                     <h4 class="detail-title">Resumen de precios</h4>
                     <div class="price-item">
-                        <span>$150 x 5 noches</span>
-                        <span>$750</span>
+                        <span>$0 x 0 noches</span>
+                        <span>$0</span>
                     </div>
                     <div class="price-item">
                         <span>Limpieza</span>
-                        <span>$50</span>
+                        <span>$20</span>
                     </div>
                     <div class="price-item">
                         <span>Tarifa de servicio</span>
-                        <span>$45</span>
+                        <span>$15</span>
                     </div>
                     <div class="price-total">
                         <span>Total</span>
-                        <span>$845</span>
+                        <span>$0</span>
                     </div>
                 </div>
 
-                <!-- Formulario condicional: Se mostrará si el usuario NO está logueado -->
-                <div class="guest-info" id="guest-info-section">
+                <div class="guest-info" id="guest-info-section" style="display:none;">
                     <h4 class="detail-title">Información del huésped</h4>
                     <div class="form-group">
                         <label>Nombre completo</label>
@@ -146,12 +121,14 @@
                     <button class="btn btn-primary" onclick="window.location.href='login.html'" style="width: 100%;">Iniciar Sesión para Reservar</button>
                 </div>
 
+                <div class="success-message" id="success-message" style="display:none; background:#d4edda; color:#155724; padding:15px; border-radius:5px; margin-top:15px; border:1px solid #c3e6cb;">
+                    ¡Reserva confirmada exitosamente!
+                </div>
+
                 <div class="policy-section">
                     <h4 class="policy-title">Política de cancelación</h4>
                     <p class="policy-text">
                         Cancelación gratuita hasta 48 horas antes del check-in.
-                        Reembolso del 50% si cancelas entre 48 y 24 horas antes.
-                        No hay reembolso si cancelas con menos de 24 horas de anticipación.
                     </p>
                 </div>
             </div>
@@ -160,9 +137,8 @@
 
     <script src="../config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
-    <script src="../Scripts/Reservar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+    <script src="../Scripts/Reservar.js"></script>
 </body>
-
 </html>
