@@ -1,3 +1,8 @@
+/* =======================================================
+   HOME.CSS - Estilos Específicos del Home
+   ======================================================= */
+
+/* --- 1. VARIABLES Y RESET --- */
 :root {
     --primary: #3498db;
     --primary-dark: #2980b9;
@@ -21,111 +26,116 @@ body {
     min-height: 100vh;
 }
 
+/* --- 2. HEADER Y NAVBAR (CORREGIDO) --- */
 header {
     background-color: white;
     box-shadow: 0 2px 10px rgba(0,0,0,0.08);
     position: sticky;
     top: 0;
     z-index: 100;
-    padding: 1rem 2rem;
+    width: 100%;
+    height: 80px; /* Altura fija para centrar todo */
+    display: flex;
+    align-items: center; /* Centrado vertical */
 }
 
 .navbar {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: center; /* Centrado vertical de hijos */
+    width: 100%;
     max-width: 1200px;
     margin: 0 auto;
+    padding: 0 2rem;
+    height: 100%;
 }
 
 .logo {
     display: flex;
     align-items: center;
+    gap: 0.5rem;
+    height: 100%;
+    text-decoration: none; /* Por si acaso */
 }
 
 .logo h1 {
     color: var(--primary);
-    font-size: 1.8rem;
-    margin-left: 0.5rem;
+    font-size: 1.5rem;
+    margin: 0;
+    line-height: 1; /* Evita espacios extra */
+    font-weight: 700;
 }
 
 .logo-icon {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
+    display: block;
+    fill: var(--primary);
 }
 
-.search-bar {
-    display: none;
-    border: 1px solid #ddd;
-    border-radius: 30px;
-    padding: 0.5rem 1rem;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+/* --- 3. BOTONES DE SESIÓN (Alineados) --- */
+.user-session {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    height: 100%;
 }
 
+/* Botón Genérico (Login / Logout) */
 .btn {
-    padding: 0.75rem 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1.5rem;
+    height: 40px; /* Altura fija igual al de perfil */
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     font-weight: 600;
+    font-size: 0.95rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    text-decoration: none;
+    line-height: 1;
 }
 
 .btn-primary {
     background-color: var(--primary);
     color: white;
 }
-
-.search-bar input {
-    border: none;
-    outline: none;
-    padding: 0.5rem;
-    min-width: 250px;
+.btn-primary:hover {
+    background-color: var(--primary-dark);
 }
 
-.user-menu {
-    display: flex;
-    align-items: center;
-}
-
-.user-menu a {
-    margin-left: 1rem;
-    text-decoration: none;
-    color: var(--dark);
-    font-weight: 500;
-}
-
-.user-menu .btn {
-    background-color: var(--primary);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-}
-
-.user-session {
-    display: flex;
-    align-items: center;
-    gap: 1.4rem;
-}
-
+/* Botón de Perfil (Redondo) */
 .user-btn {
-    background-color: var(--primary);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    color: var(--dark);
+    border: 1px solid #ddd;
+    padding: 0 1.2rem;
+    height: 40px; /* MISMA ALTURA */
+    border-radius: 20px; /* Píldora */
     font-weight: 600;
+    font-size: 0.95rem;
     cursor: pointer;
-    font-size: 1rem;
-    line-height: 1;
-    display: inline-block;
+    white-space: nowrap;
+    transition: all 0.3s;
 }
 
+.user-btn:hover {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    color: white;
+}
 
+/* --- 4. HERO SECTION --- */
 .hero {
     position: relative;
     height: 60vh;
-    background-image: url('https://images.unsplash.com/photo-1615716038858-2f9a60c330a6?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+    background-image: url('https://images.unsplash.com/photo-1615716038858-2f9a60c330a6?q=80&w=1470&auto=format&fit=crop');
     background-size: cover;
     background-position: center;
     display: flex;
@@ -139,11 +149,8 @@ header {
 .hero::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0,0,0,0.3);
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0,0,0,0.4); /* Un poco más oscuro para leer mejor */
 }
 
 .hero-content {
@@ -155,13 +162,16 @@ header {
 .hero h2 {
     font-size: 2.5rem;
     margin-bottom: 1rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .hero p {
     font-size: 1.2rem;
     margin-bottom: 2rem;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 
+/* --- 5. BUSCADOR --- */
 .search-box {
     background: white;
     padding: 2rem;
@@ -204,8 +214,8 @@ header {
     margin-bottom: 0.5rem;
     font-weight: 600;
     color: black;
+    text-align: left;
 }
-
 
 .search-field select, 
 .search-field input {
@@ -213,6 +223,7 @@ header {
     padding: 0.75rem;
     border: 1px solid #ddd;
     border-radius: 4px;
+    font-size: 0.95rem; /* Ajuste leve para consistencia */
 }
 
 .search-btn {
@@ -224,22 +235,20 @@ header {
     font-weight: 600;
     cursor: pointer;
     margin-top: 1rem;
+    width: auto; /* Restaurado: no ocupa el 100% a menos que sea movil */
 }
 
-.search-btn-demo {
-    background-color: var(--primary);
-    color: white;
-    border: none;
-    padding: 0.75rem 2rem;
-    border-radius: 4px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 1rem;
-    border-radius: 30px;
+.error-message {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 4px;
+    display: none;
+    text-align: left;
 }
 
+/* --- 6. CATEGORÍAS --- */
 .categories {
-    padding: 3rem 2rem;
+    padding: 4rem 2rem;
     max-width: 1200px;
     margin: 0 auto;
 }
@@ -248,43 +257,49 @@ header {
     font-size: 1.8rem;
     margin-bottom: 2rem;
     color: var(--dark);
+    font-weight: 700;
 }
 
 .category-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
     gap: 1.5rem;
 }
 
 .category-card {
     text-align: center;
     cursor: pointer;
-    transition: transform 0.3s ease;
+    transition: transform 0.2s ease;
+    padding: 10px;
+    border-radius: 8px;
 }
-
 .category-card:hover {
-    transform: scale(1.05);
+    transform: translateY(-5px);
+    background-color: #fff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
 .category-icon {
-    width: 60px;
-    height: 60px;
-    margin: 0 auto 0.5rem;
-    background-color: var(--light);
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 0.8rem;
+    background-color: white;
+    border: 1px solid #eee;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--primary);
+    display: flex; align-items: center; justify-content: center;
     font-size: 1.5rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
 .category-name {
     font-weight: 600;
+    font-size: 0.9rem;
+    color: #555;
 }
 
+/* --- 7. PROPIEDADES --- */
 .properties {
-    padding: 3rem 2rem;
+    padding: 4rem 2rem;
     background-color: white;
 }
 
@@ -300,20 +315,24 @@ header {
 }
 
 .property-card {
-    border-radius: 8px;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    transition: transform 0.3s ease;
+    background: white;
+    border: 1px solid #f0f0f0;
+    transition: transform 0.3s ease, box-shadow 0.3s;
+    cursor: pointer;
 }
 
 .property-card:hover {
     transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
 }
 
 .property-image {
     height: 200px;
     background-size: cover;
     background-position: center;
+    position: relative;
 }
 
 .property-info {
@@ -322,33 +341,44 @@ header {
 
 .property-type {
     color: var(--text-light);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     margin-bottom: 0.3rem;
+    font-weight: 600;
 }
 
 .property-title {
-    font-weight: 600;
+    font-weight: 700;
     margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    color: var(--dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .property-price {
-    font-weight: 600;
-    color: var(--primary);
+    font-weight: 700;
+    color: var(--dark);
+    font-size: 1.1rem;
     margin-bottom: 0.5rem;
 }
 
 .property-rating {
     display: flex;
     align-items: center;
-    color: var(--secondary);
+    color: var(--dark);
     font-weight: 500;
+    font-size: 0.9rem;
 }
 
+/* --- 8. FOOTER --- */
 footer {
     background-color: var(--dark);
     color: white;
-    padding: 3rem 2rem;
-    margin-top: 3rem;
+    padding: 4rem 2rem 2rem;
+    margin-top: 0;
 }
 
 .footer-container {
@@ -356,66 +386,49 @@ footer {
     margin: 0 auto;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 2rem;
+    gap: 3rem;
 }
 
 .footer-col h3 {
     margin-bottom: 1.5rem;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-.footer-col ul {
-    list-style: none;
-}
-
-.footer-col ul li {
-    margin-bottom: 0.75rem;
-}
+.footer-col ul { list-style: none; }
+.footer-col ul li { margin-bottom: 0.8rem; }
 
 .footer-col ul li a {
     color: #bdc3c7;
     text-decoration: none;
     transition: color 0.3s ease;
+    font-size: 0.95rem;
 }
-
-.footer-col ul li a:hover {
-    color: white;
-}
+.footer-col ul li a:hover { color: white; }
 
 .copyright {
     text-align: center;
-    margin-top: 3rem;
-    padding-top: 1.5rem;
+    margin-top: 4rem;
+    padding-top: 2rem;
     border-top: 1px solid rgba(255,255,255,0.1);
     font-size: 0.9rem;
-    color: #bdc3c7;
+    color: #95a5a6;
 }
 
-.error-message {
-    color: red;
-    font-size: 0.9em;
-    margin-top: 4px;
-    display: none;
-}
-
-
+/* --- RESPONSIVE --- */
 @media (min-width: 768px) {
-    .search-bar {
-        display: flex;
-        align-items: center;
-    }
+    .hero { height: 70vh; }
+    .hero h2 { font-size: 3.5rem; }
     
-    .hero {
-        height: 70vh;
-    }
-    
-    .hero h2 {
-        font-size: 3rem;
+    /* El buscador se pone horizontal */
+    .search-fields {
+        grid-template-columns: 1.5fr 1fr 1fr 1fr;
     }
 }
 
 @media (min-width: 992px) {
     .category-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     }
 }

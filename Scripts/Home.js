@@ -6,7 +6,7 @@
 // Variable global para guardar los alojamientos cargados
 let allAccommodations = []; 
 
-// --- 1. FUNCIÓN HELPER ---
+// ---  FUNCIÓN HELPER ---
 async function fetchConToken(url, options = {}) {
     const token = localStorage.getItem('jwtToken');
     const headers = {
@@ -24,6 +24,13 @@ async function fetchConToken(url, options = {}) {
         throw new Error(errorData.message || 'Error en la petición');
     }
     return response.status === 204 ? null : response.json();
+}
+
+// --- Funcion Helper ---
+function getAverageRating(reviews) {
+    if (!reviews || reviews.length === 0) return 0;
+    const sum = reviews.reduce((acc, r) => acc + (Number(r.rating) || 0), 0);
+    return sum / reviews.length;
 }
 
 // --- 2. ÚNICO LISTENER 'DOMContentLoaded' ---
@@ -72,6 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- REFERENCIA AL GRID ---
     const propertyGrid = document.querySelector('.properties-container .property-grid');
+    const topRatedGrid = document.getElementById('top-rated-grid');
 
     // --- FUNCIÓN PARA DIBUJAR LAS TARJETAS (Render) ---
     function renderAccommodations(list) {
@@ -139,6 +147,78 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    function createCard(accomodation) {
+        const card = document.createElement('div');
+        card.className = 'property-card';
+
+        let imageUrl = 'https://placehold.co/600x400';
+        if (accomodation.images && accomodation.images.length > 0) {
+            imageUrl = accomodation.images[0].url; 
+        }
+
+        // Calculamos rating para mostrar
+        const avg = getAverageRating(accomodation.reviews);
+        const ratingText = avg > 0 ? `★ ${avg.toFixed(1)}` : "Sin reseñas";
+
+        // Amenities (opcional)
+        let amenitiesText = '';
+        if (accomodation.amenities && accomodation.amenities.length > 0) {
+            amenitiesText = accomodation.amenities.slice(0, 3).map(a => a.name).join(' · ');
+        }
+
+        card.innerHTML = `
+            <div class="property-image" style="background-image: url('${imageUrl}')"></div>
+            <div class="property-info">
+                <div class="property-type">${accomodation.location?.city || 'Alojamiento'}</div>
+                <h3 class="property-title">${accomodation.title}</h3>
+                <div class="property-amenities" style="color: #666; font-size: 0.9em; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    ${amenitiesText}
+                </div>
+                <div class="property-price">$${accomodation.pricePerNight} noche</div>
+                <div class="property-rating">${ratingText}</div>
+            </div>
+        `;
+        
+        card.addEventListener('click', function() {
+            window.location.href = `reservar.html?id=${accomodation.id}`;
+        });
+
+        return card;
+    }
+
+    // Funcion para renderizar las experiencias unicas
+    function renderTopRated(list) {
+        if (!topRatedGrid) return;
+        topRatedGrid.innerHTML = '';
+
+        //  Crear una copia y calcular promedios
+        const listWithRatings = list.map(acc => {
+            return {
+                ...acc, 
+                avgRating: getAverageRating(acc.reviews) 
+            };
+        });
+
+        // Ordenar: Mayor puntaje primero.
+        // Si el puntaje es igual, .sort mantiene el orden original (estabilidad), 
+        // por lo que aparecerán los primeros de la lista.
+        listWithRatings.sort((a, b) => b.avgRating - a.avgRating);
+
+        // Tomar los top 3
+        const top3 = listWithRatings.slice(0, 3);
+
+        if (top3.length === 0) {
+            topRatedGrid.innerHTML = '<p>No hay experiencias destacadas aún.</p>';
+            return;
+        }
+
+        // Dibujar
+        top3.forEach(acc => {
+            const card = createCard(acc);
+            topRatedGrid.appendChild(card);
+        });
+    }
+
     // --- CARGA INICIAL DE DATOS ---
     if (propertyGrid) {
         propertyGrid.innerHTML = '<p>Cargando alojamientos...</p>';
@@ -153,6 +233,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 allAccommodations = data;
                 // Renderizamos todo al principio
                 renderAccommodations(allAccommodations);
+                renderTopRated(allAccommodations);
             })
             .catch(error => {
                 console.error('Error al cargar alojamientos:', error);

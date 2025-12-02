@@ -5,9 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HomeSweetHome | Confirmar Reserva</title>
-    <link rel="stylesheet" href="../Styles/reservar.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
+    
     <link rel="stylesheet" href="../Styles/style.css">
+    <link rel="stylesheet" href="../Styles/reservar.css">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
 </head>
 
 <body>
@@ -93,22 +97,12 @@
                     <div class="date-grid">
                         <div class="date-field">
                             <label>Llegada</label>
-                            <input type="date" id="checkin-date">
+                            <input type="text" id="checkin-date" placeholder="Selecciona fecha" readonly>
                         </div>
                         <div class="date-field">
                             <label>Salida</label>
-                            <input type="date" id="checkout-date">
+                            <input type="text" id="checkout-date" placeholder="Selecciona fecha" readonly>
                         </div>
-                    </div>
-
-                    <div class="guests-field">
-                        <label>Huéspedes</label>
-                        <select id="guests">
-                            <option value="1">1 huésped</option>
-                            <option value="2" selected>2 huéspedes</option>
-                            <option value="3">3 huéspedes</option>
-                            <option value="4">4 huéspedes</option>
-                        </select>
                     </div>
                 </div>
 
@@ -137,24 +131,19 @@
                     <h4 class="detail-title">Información del huésped</h4>
                     <div class="form-group">
                         <label>Nombre completo</label>
-                        <input type="text" id="guest-name" placeholder="Ingresa tu nombre completo">
+                        <input type="text" id="guest-name" readonly style="background-color: #f9f9f9;">
                     </div>
                     <div class="form-group">
                         <label>Correo electrónico</label>
-                        <input type="email" id="guest-email" placeholder="tu@email.com">
-                    </div>
-                    <div class="form-group">
-                        <label>Teléfono</label>
-                        <div class="phone-input-group">
-                            <input type="tel" id="guest-phone" placeholder="123 456 7890">
-                        </div>
+                        <input type="email" id="guest-email" readonly style="background-color: #f9f9f9;">
                     </div>
                 </div>
 
-                <button class="btn-primary" id="confirm-btn">Confirmar Reserva</button>
+                <button class="btn-primary" id="confirm-btn" style="display: none; width: 100%; margin-top: 1rem;">Confirmar Reserva</button>
 
-                <div class="success-message" id="success-message">
-                    ¡Reserva confirmada! Te hemos enviado los detalles por correo electrónico.
+                <div id="login-warning" style="display: none; text-align: center; padding: 20px; background: #fff3cd; border-radius: 8px; border: 1px solid #ffeeba; margin-top: 1rem;">
+                    <p style="color: #856404; margin-bottom: 10px;">Debes iniciar sesión para completar la reserva.</p>
+                    <button class="btn btn-primary" onclick="window.location.href='login.html'" style="width: 100%;">Iniciar Sesión para Reservar</button>
                 </div>
 
                 <div class="policy-section">
@@ -172,6 +161,8 @@
     <script src="../config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
     <script src="../Scripts/Reservar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
 </body>
 
 </html>

@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', async function () {
-    // 1. OBTENER ID DE LA URL
+    
+    // 1. OBTENER ID
     const urlParams = new URLSearchParams(window.location.search);
     const accommodationId = urlParams.get('id');
 
@@ -9,304 +10,248 @@ document.addEventListener('DOMContentLoaded', async function () {
         return;
     }
 
-    // --- ELEMENTOS DEL DOM ---
+    // --- ELEMENTOS DOM ---
     const confirmBtn = document.getElementById('confirm-btn');
-    const successMessage = document.getElementById('success-message');
-    const guestsInput = document.getElementById('guests');
-
-    // Elementos del formulario condicional
     const guestInfoSection = document.getElementById('guest-info-section');
-    const nameInput = document.getElementById('guest-name');
-    const emailInput = document.getElementById('guest-email');
-    const phoneInput = document.getElementById('guest-phone');
-
-    const checkinInput = document.getElementById('checkin-date');
-    const checkoutInput = document.getElementById('checkout-date');
+    const loginWarning = document.getElementById('login-warning');
+    const successMessage = document.getElementById('success-message');
     const priceItems = document.querySelectorAll('.price-item');
     const priceTotalElement = document.querySelector('.price-total span:last-child');
+    const guestNameInput = document.getElementById('guest-name');
+    const guestEmailInput = document.getElementById('guest-email');
 
-    // Elementos de la propiedad
-    const titleElem = document.querySelector('.property-title');
-    const locationElem = document.querySelector('.property-location span');
-    const mainImageElem = document.querySelector('.main-image');
-    const secondaryImages = document.querySelectorAll('.secondary-image');
-
-    // Elementos del Anfitrión (Host)
-    const hostNameElem = document.querySelector('.host-details h4');
-    const hostDescElem = document.querySelector('.host-details p'); // El texto de abajo (Superhost...)
-    const hostAvatarElem = document.querySelector('.host-avatar');
-
-    // --- VARIABLES GLOBALES ---
+    // --- VARIABLES ---
     let NIGHTLY_RATE = 0;
-    const CLEANING_FEE = 50;
-    const SERVICE_FEE = 45;
+    const CLEANING_FEE = 20; 
+    const SERVICE_FEE = 15;
     let currentTotal = 0;
+    let bookedDates = []; 
 
-    // Verificar estado de login
+    // --- DEFINICIÓN DE PICKERS ---
+    let checkinPicker = null;
+    let checkoutPicker = null;
+
+    // --- 2. GESTIÓN DE SESIÓN ---
     const userId = localStorage.getItem('userId');
     const token = localStorage.getItem('jwtToken');
     const isLoggedIn = userId && token;
 
-    // --- 0. CONFIGURACIÓN INICIAL ---
-    // Fechas por defecto: Hoy y Mañana
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    checkinInput.valueAsDate = today;
-    checkoutInput.valueAsDate = tomorrow;
-
-    // --- GESTIÓN DE VISIBILIDAD DEL FORMULARIO ---
     if (isLoggedIn) {
-        // Usuario logueado: Ocultar formulario
-        if (guestInfoSection) guestInfoSection.style.display = 'none';
+        if(guestInfoSection) guestInfoSection.style.display = 'block';
+        if(confirmBtn) confirmBtn.style.display = 'block';
+        if(loginWarning) loginWarning.style.display = 'none';
+        if(guestNameInput) guestNameInput.value = localStorage.getItem('usuarioName') || '';
+        if(guestEmailInput) guestEmailInput.value = localStorage.getItem('userEmail') || '';
     } else {
-        // Usuario NO logueado: Mostrar formulario
-        if (guestInfoSection) guestInfoSection.style.display = 'block';
+        if(guestInfoSection) guestInfoSection.style.display = 'none';
+        if(confirmBtn) confirmBtn.style.display = 'none';
+        if(loginWarning) loginWarning.style.display = 'block';
     }
 
-    // --- INICIALIZAR INTL-TEL-INPUT (Solo si el input existe y está visible) ---
-    let iti;
-    if (phoneInput) {
-        iti = window.intlTelInput(phoneInput, {
-            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js",
-            preferredCountries: ['mx', 'us', 'ca', 'es'],
-            separateDialCode: true,
-            initialCountry: "auto",
-            geoIpLookup: function (callback) {
-                fetch("https://ipapi.co/json")
-                    .then(function (res) { return res.json(); })
-                    .then(function (data) { callback(data.country_code); })
-                    .catch(function () { callback("mx"); });
-            }
-        });
-    }
-
-    // --- CARGAR DATOS DEL BACKEND ---
+    // --- 3. CARGAR DATOS ---
     try {
         const response = await fetch(`${API_BASE_URL}/accomodations/${accommodationId}`);
-        if (!response.ok) throw new Error('Error al cargar el alojamiento');
-
+        if (!response.ok) throw new Error('Error al cargar');
         const accommodation = await response.json();
-        console.log("Datos del alojamiento:", accommodation);
 
-        // 1. Info básica
-        titleElem.textContent = accommodation.title;
-        locationElem.textContent = `📍 ${accommodation.location?.city || 'Ciudad'}, ${accommodation.location?.country || 'País'}`;
-        NIGHTLY_RATE = accommodation.pricePerNight;
+        // UI
+        const titleElem = document.querySelector('.property-title');
+        const locElem = document.querySelector('.property-location span');
+        const imgElem = document.querySelector('.main-image');
 
-        // 2. Imágenes
-        if (accommodation.images && accommodation.images.length > 0) {
-            const mainUrl = accommodation.images[0].url || accommodation.images[0];
-            mainImageElem.style.backgroundImage = `url('${mainUrl}')`;
+        if(titleElem) titleElem.textContent = accommodation.title;
+        if(locElem) locElem.textContent = `📍 ${accommodation.location?.city || ''}, ${accommodation.location?.country || ''}`;
+        
+        NIGHTLY_RATE = accommodation.pricePerNight || 0;
 
-            secondaryImages.forEach((imgDiv, index) => {
-                if (accommodation.images[index + 1]) {
-                    const secUrl = accommodation.images[index + 1].url || accommodation.images[index + 1];
-                    imgDiv.style.backgroundImage = `url('${secUrl}')`;
-                }
-            });
+        if (imgElem && accommodation.images && accommodation.images.length > 0) {
+            imgElem.style.backgroundImage = `url('${accommodation.images[0].url}')`;
         }
 
-        // 3. INFO DEL ANFITRION (HOST)
-        const host = accommodation.host || accommodation.user;
+        // CARGAR FECHAS OCUPADAS
+        await loadAndBlockDates(accommodationId);
 
-        if (host) {
-            const nombreHost = host.firstName || host.name || "Anfitrión";
-            const apellidoHost = host.lastName || "";
-            hostNameElem.textContent = `${nombreHost} ${apellidoHost}`;
-
-            const detalleHost = host.email || "Anfitrión verificado";
-            hostDescElem.textContent = `${detalleHost} · Contacto directo`;
-
-            if (host.profilePicture || host.avatarUrl) {
-                const avatarUrl = host.profilePicture || host.avatarUrl;
-                hostAvatarElem.style.backgroundImage = `url('${avatarUrl}')`;
-            }
-        }
-
-        // 4. INFO DE AMENITIES (NUEVO CÓDIGO)
-        const amenitiesGrid = document.querySelector('.amenities-grid');
-
-        if (amenitiesGrid) {
-            amenitiesGrid.innerHTML = '';
-
-            if (accommodation.amenities && accommodation.amenities.length > 0) {
-                
-                // Mapa simple para asignar iconos según el texto (puedes agregar más)
-                const iconMap = {
-                    'Wi-Fi': '📶',
-                    'Piscina': '🏊‍♂️',
-                    'Aire acondicionado': '❄️',
-                    'Calefacción': '🔥',
-                    'Cocina': '🍳',
-                    'Estacionamiento': '🅿️',
-                    'Pet friendly': '🐾',
-                    'Televisión': '📺',
-                    'Lavadora': '🧺',
-                    'Vista al mar': '🌊',
-                    'Gimnasio': '🏋️‍♂️'
-                };
-
-                accommodation.amenities.forEach(amenity => {
-                    const div = document.createElement('div');
-                    div.className = 'amenity-item';
-
-                    const icon = Object.keys(iconMap).find(key => 
-                        amenity.name.toLowerCase().includes(key.toLowerCase())
-                    ) ? iconMap[Object.keys(iconMap).find(key => amenity.name.toLowerCase().includes(key.toLowerCase()))] : '✅';
-
-                    div.innerHTML = `
-                        <span class="amenity-icon">${icon}</span>
-                        <span>${amenity.name}</span>
-                    `;
-                    amenitiesGrid.appendChild(div);
-                });
-            } else {
-                amenitiesGrid.innerHTML = '<p>No se especificaron comodidades.</p>';
-            }
-        }
-
-        // Recalcular precios con el valor real
+        // INICIAR CALENDARIO
+        initCalendar();
         calculateTotal();
 
     } catch (error) {
         console.error(error);
     }
 
-    // --- CÁLCULO DE PRECIO ---
-    function calculateTotal() {
-        const checkin = new Date(checkinInput.value);
-        const checkout = new Date(checkoutInput.value);
+    // --- HELPER FECHAS (ROBUSTO) ---
+    function normalizeDate(dateInput) {
+        if (!dateInput) return null;
+        // Creamos la fecha y ajustamos la zona horaria para obtener el día calendario correcto
+        const date = new Date(dateInput);
+        const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+        const adjustedDate = new Date(date.getTime() + userTimezoneOffset);
+        return adjustedDate.toISOString().split('T')[0];
+    }
 
-        if (isValidDate(checkin) && isValidDate(checkout) && checkout > checkin) {
-            const diffTime = Math.abs(checkout - checkin);
+    // --- CARGAR RESERVAS ---
+    async function loadAndBlockDates(accId) {
+        try {
+            const res = await fetch(`${API_BASE_URL}/reservations/accomodation/${accId}`);
+            if (!res.ok) return;
+            const myReservations = await res.json();
+
+            // Filtramos solo las que no estén borradas (canceladas)
+            // Ya no hace falta filtrar por ID de casa porque el backend ya lo hizo
+            const activeReservations = myReservations.filter(r => !r.deletedAt);
+
+            // Convertimos al formato que Flatpickr entiende
+            bookedDates = activeReservations.map(r => ({
+                from: normalizeDate(r.checkIn),
+                to: normalizeDate(r.checkOut)
+            }));
+
+            console.log("Fechas bloqueadas cargadas:", bookedDates.length);
+
+        } catch (e) { console.error(e); }
+    }
+
+    // --- CALENDARIO (FLATPICKR) ---
+    function initCalendar() {
+        const commonConfig = {
+            dateFormat: "Y-m-d",
+            minDate: "today",
+            disable: bookedDates,
+            locale: "es",
+            disableMobile: true
+        };
+
+        // Input Llegada (Usamos la variable global sin 'const')
+        checkinPicker = flatpickr("#checkin-date", {
+            ...commonConfig,
+            onChange: function(selectedDates, dateStr) {
+                if (selectedDates[0]) {
+                    const minCheckout = new Date(selectedDates[0]);
+                    minCheckout.setDate(minCheckout.getDate() + 1);
+                    
+                    if (checkoutPicker) {
+                        checkoutPicker.set('minDate', minCheckout);
+                        
+                        const currentCheckout = checkoutPicker.selectedDates[0];
+                        if (currentCheckout && currentCheckout <= selectedDates[0]) {
+                            checkoutPicker.clear();
+                        }
+                        setTimeout(() => checkoutPicker.open(), 100);
+                    }
+                }
+                calculateTotal();
+            }
+        });
+
+        // Input Salida (Usamos la variable global sin 'const')
+        checkoutPicker = flatpickr("#checkout-date", {
+            ...commonConfig,
+            onChange: function() {
+                calculateTotal();
+            }
+        });
+    }
+
+    // --- CÁLCULO PRECIOS ---
+    function calculateTotal() {
+        const checkinInput = document.getElementById('checkin-date');
+        const checkoutInput = document.getElementById('checkout-date');
+        
+        if (!checkinInput || !checkoutInput) return;
+
+        const checkinVal = checkinInput.value;
+        const checkoutVal = checkoutInput.value;
+
+        if (checkinVal && checkoutVal) {
+            const start = new Date(checkinVal);
+            const end = new Date(checkoutVal);
+            const diffTime = end - start;
             const nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-            const subtotal = NIGHTLY_RATE * nights;
-            currentTotal = subtotal + CLEANING_FEE + SERVICE_FEE;
+            if (nights > 0) {
+                const subtotal = NIGHTLY_RATE * nights;
+                currentTotal = subtotal + CLEANING_FEE + SERVICE_FEE;
 
-            priceItems[0].innerHTML = `<span>$${NIGHTLY_RATE} x ${nights} noches</span><span>$${subtotal}</span>`;
-            priceTotalElement.textContent = `$${currentTotal}`;
-        } else {
-            priceItems[0].innerHTML = `<span>$${NIGHTLY_RATE} x 0 noches</span><span>$0</span>`;
-            priceTotalElement.textContent = `$${CLEANING_FEE + SERVICE_FEE}`;
-            currentTotal = 0;
-        }
-        validateForm();
-    }
-
-    function isValidDate(d) {
-        return d instanceof Date && !isNaN(d);
-    }
-
-    checkinInput.addEventListener('change', calculateTotal);
-    checkoutInput.addEventListener('change', calculateTotal);
-
-
-    // --- VALIDACIÓN DEL FORMULARIO ---
-    function validateForm() {
-        const isDateValid = currentTotal > 0;
-        let isFormValid = true;
-
-        // Si NO está logueado, validar los campos del formulario
-        if (!isLoggedIn) {
-            const isNameValid = nameInput.value.trim() !== '';
-            const isEmailValid = emailInput.value.trim() !== '';
-            const isPhoneValid = iti ? iti.isValidNumber() : false;
-
-            isFormValid = isNameValid && isEmailValid && isPhoneValid;
+                if(priceItems[0]) priceItems[0].innerHTML = `<span>$${NIGHTLY_RATE} x ${nights} noches</span><span>$${subtotal}</span>`;
+                if(priceTotalElement) priceTotalElement.textContent = `$${currentTotal}`;
+                
+                if (isLoggedIn && confirmBtn) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.classList.remove('disabled');
+                }
+                return;
+            }
         }
 
-        if (isDateValid && isFormValid) {
-            confirmBtn.disabled = false;
-            confirmBtn.classList.remove('disabled');
-        } else {
+        // Default
+        if(priceItems[0]) priceItems[0].innerHTML = `<span>$${NIGHTLY_RATE} x 0 noches</span><span>$0</span>`;
+        if(priceTotalElement) priceTotalElement.textContent = `$0`;
+        if(confirmBtn) {
             confirmBtn.disabled = true;
             confirmBtn.classList.add('disabled');
         }
     }
 
-    // Event listeners para validación (solo si existen)
-    if (nameInput) nameInput.addEventListener('input', validateForm);
-    if (emailInput) emailInput.addEventListener('input', validateForm);
-    if (phoneInput) {
-        phoneInput.addEventListener('input', validateForm);
-        phoneInput.addEventListener('countrychange', validateForm);
-    }
+    // --- CONFIRMAR ---
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', async function () {
+            if (!isLoggedIn) return;
 
-    // Inicializar estado del botón
-    confirmBtn.disabled = true;
-    // Llamar a validación inicial
-    validateForm();
+            const checkin = document.getElementById('checkin-date').value;
+            const checkout = document.getElementById('checkout-date').value;
 
-    // --- CONFIRMAR RESERVA ---
-    confirmBtn.addEventListener('click', async function () {
-        if (confirmBtn.disabled) return;
+            if (!checkin || !checkout) {
+                alert("Por favor selecciona las fechas.");
+                return;
+            }
 
-        // Preparar datos del huésped
-        let guestIdToSend = null;
-        let guestNameToSend = "";
-        let guestEmailToSend = "";
-        let guestPhoneToSend = "";
-
-        if (isLoggedIn) {
-            // Usar datos de localStorage
-            guestIdToSend = parseInt(userId);
-            guestNameToSend = localStorage.getItem('usuarioName') || "";
-            guestEmailToSend = localStorage.getItem('userEmail') || "";
-            // Teléfono vacío o de localStorage si existiera
-        } else {
-            // Usar datos del formulario
-            guestNameToSend = nameInput.value.trim();
-            guestEmailToSend = emailInput.value.trim();
-            guestPhoneToSend = iti ? iti.getNumber() : "";
-            // guestIdToSend se queda en null o 0, según lo que espere el backend para usuarios no registrados
-        }
-
-        // Objeto Reserva
-        const reserva = {
-            guestId: guestIdToSend, // Puede ser null si no está registrado
-            accomodationId: parseInt(accommodationId),
-            checkIn: checkinInput.value,
-            checkOut: checkoutInput.value,
-            totalPrice: currentTotal,
-            guests: parseInt(guestsInput.value),
-            guestName: guestNameToSend,
-            guestEmail: guestEmailToSend,
-            guestPhone: guestPhoneToSend
-        };
-
-        console.log("Reserva Payload:", reserva); // DEBUG
-
-        // Configurar headers (Authorization solo si hay token)
-        const headers = {
-            "Content-Type": "application/json"
-        };
-        if (token) {
-            headers["Authorization"] = `Bearer ${token}`;
-        }
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/reservations`, {
-                method: "POST",
-                headers: headers,
-                body: JSON.stringify(reserva)
-            });
-
-            if (!response.ok) throw new Error(await response.text());
-
-            successMessage.style.display = 'block';
-            confirmBtn.textContent = 'Confirmado';
+            const originalText = confirmBtn.textContent;
+            confirmBtn.textContent = "Procesando...";
             confirmBtn.disabled = true;
-            successMessage.scrollIntoView({ behavior: 'smooth' });
 
-        } catch (error) {
-            console.error("Error:", error);
-            alert("Error al reservar: " + error.message);
-        }
-    });
+            const payload = {
+                checkIn: checkin,
+                checkOut: checkout,
+                totalPrice: currentTotal,
+                guestId: parseInt(userId),
+                accomodationId: parseInt(accommodationId)
+            };
 
-    const botonReservar = document.getElementById('btn-home');
-    if (botonReservar) botonReservar.addEventListener('click', () => window.location.href = 'home.html');
+            try {
+                const response = await fetch(`${API_BASE_URL}/reservations`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    // Intentamos parsear si es un JSON de error
+                    try {
+                        const errorJson = JSON.parse(errorText);
+                        throw new Error(errorJson.message || errorText);
+                    } catch (e) {
+                        throw new Error(errorText || 'Error al reservar');
+                    }
+                }
+
+                if (successMessage) {
+                    successMessage.style.display = 'block';
+                    successMessage.scrollIntoView({ behavior: 'smooth' });
+                }
+                confirmBtn.style.display = 'none';
+
+                setTimeout(() => { window.location.href = 'home.html'; }, 3000);
+
+            } catch (error) {
+                console.error(error);
+                alert("Hubo un problema: " + error.message);
+                confirmBtn.textContent = originalText;
+                confirmBtn.disabled = false;
+            }
+        });
+    }
 });
