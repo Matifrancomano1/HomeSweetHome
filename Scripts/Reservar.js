@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', async function () {
     
-    // --- 1. OBTENER ID DE LA URL ---
+    // 1. OBTENER ID
     const urlParams = new URLSearchParams(window.location.search);
     const accommodationId = urlParams.get('id');
 
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const guestNameInput = document.getElementById('guest-name');
     const guestEmailInput = document.getElementById('guest-email');
 
-    // --- VARIABLES GLOBALES ---
+    // --- VARIABLES ---
     let NIGHTLY_RATE = 0;
     const CLEANING_FEE = 20; 
     const SERVICE_FEE = 15;
@@ -50,15 +50,16 @@ document.addEventListener('DOMContentLoaded', async function () {
         if(loginWarning) loginWarning.style.display = 'block';
     }
 
-    // --- 3. CARGAR DATOS DEL ALOJAMIENTO ---
+    // --- 3. CARGAR DATOS ---
     try {
         const response = await fetch(`${API_BASE_URL}/accomodations/${accommodationId}`);
-        if (!response.ok) throw new Error('Error al cargar el alojamiento');
+        if (!response.ok) throw new Error('Error al cargar');
         const accommodation = await response.json();
 
         // A. Datos Principales
         const titleElem = document.querySelector('.property-title');
         const locElem = document.querySelector('.property-location span');
+        const imgElem = document.querySelector('.main-image');
 
         if(titleElem) titleElem.textContent = accommodation.title;
         if(locElem) locElem.textContent = `📍 ${accommodation.location?.city || ''}, ${accommodation.location?.country || ''}`;
@@ -67,8 +68,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         // B. Imágenes
         if (accommodation.images && accommodation.images.length > 0) {
-            const mainImg = document.querySelector('.main-image');
-            if (mainImg) mainImg.style.backgroundImage = `url('${accommodation.images[0].url}')`;
+            if (imgElem) imgElem.style.backgroundImage = `url('${accommodation.images[0].url}')`;
             
             const secondaryDivs = document.querySelectorAll('.secondary-image');
             secondaryDivs.forEach((div, index) => {
@@ -82,10 +82,10 @@ document.addEventListener('DOMContentLoaded', async function () {
             });
         }
 
-        // C. Amenities Dinámicas
+        // C. Amenities
         renderAmenities(accommodation.amenities);
 
-        // D. Información del Anfitrión Dinámica
+        // D. Anfitrión
         renderHostInfo(accommodation.host);
 
         // E. Cargar Fechas y Calendario
@@ -94,10 +94,10 @@ document.addEventListener('DOMContentLoaded', async function () {
         calculateTotal();
 
     } catch (error) {
-        console.error("Error:", error);
+        console.error(error);
     }
 
-    // --- FUNCIONES DE RENDERIZADO ---
+    // --- FUNCIONES RENDERIZADO ---
 
     function renderAmenities(amenities) {
         const container = document.getElementById('amenities-container');
@@ -109,30 +109,24 @@ document.addEventListener('DOMContentLoaded', async function () {
             return;
         }
 
-        // Mapa de iconos simples
         const iconMap = {
             'Wifi': '📶', 'Wi-Fi': '📶', 'Internet': '🌐',
             'Piscina': '🏊‍♂️', 'Pool': '🏊‍♂️',
             'Cocina': '🍳', 'Kitchen': '🍳',
             'Estacionamiento': '🅿️', 'Parking': '🅿️',
             'Aire': '❄️', 'AC': '❄️',
-            'TV': '📺',
-            'Pet': '🐾', 'Mascotas': '🐾'
+            'TV': '📺', 'Pet': '🐾'
         };
 
         amenities.forEach(am => {
             const div = document.createElement('div');
             div.className = 'amenity-item';
             
-            // Buscar icono o usar default
             const icon = Object.keys(iconMap).find(key => am.name.includes(key)) 
                         ? iconMap[Object.keys(iconMap).find(key => am.name.includes(key))] 
                         : '✅';
 
-            div.innerHTML = `
-                <span class="amenity-icon">${icon}</span>
-                <span>${am.name}</span>
-            `;
+            div.innerHTML = `<span class="amenity-icon">${icon}</span><span>${am.name}</span>`;
             container.appendChild(div);
         });
     }
@@ -141,7 +135,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const container = document.getElementById('host-info-container');
         if (!host || !container) return;
 
-        container.style.display = 'flex'; // Mostrar sección
+        container.style.display = 'flex'; 
         const avatar = container.querySelector('.host-avatar');
         const name = container.querySelector('h4');
         const desc = container.querySelector('p');
@@ -165,6 +159,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
+
     // --- HELPER FECHAS ---
     function normalizeDate(dateInput) {
         if (!dateInput) return null;
@@ -179,24 +174,22 @@ document.addEventListener('DOMContentLoaded', async function () {
         try {
             const res = await fetch(`${API_BASE_URL}/reservations/accommodation/${accId}`);
             
-            // Fallback si endpoint específico no existe
             if (!res.ok) {
                 const resAll = await fetch(`${API_BASE_URL}/reservations`);
                 if (!resAll.ok) return;
                 const all = await resAll.json();
                 const filtered = all.filter(r => String(r.accomodation.id) === String(accId) && !r.deletedAt);
-                
                 bookedDates = filtered.map(r => ({ from: normalizeDate(r.checkIn), to: normalizeDate(r.checkOut) }));
                 return;
             }
 
             const myReservations = await res.json();
             const activeReservations = myReservations.filter(r => !r.deletedAt);
-            
             bookedDates = activeReservations.map(r => ({
                 from: normalizeDate(r.checkIn),
                 to: normalizeDate(r.checkOut)
             }));
+            console.log("Fechas bloqueadas:", bookedDates.length);
 
         } catch (e) { console.error(e); }
     }
@@ -241,6 +234,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     function calculateTotal() {
         const checkinInput = document.getElementById('checkin-date');
         const checkoutInput = document.getElementById('checkout-date');
+        
         if (!checkinInput || !checkoutInput) return;
 
         const checkinVal = checkinInput.value;
@@ -256,8 +250,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                 const subtotal = NIGHTLY_RATE * nights;
                 currentTotal = subtotal + CLEANING_FEE + SERVICE_FEE;
 
-                priceItems[0].innerHTML = `<span>$${NIGHTLY_RATE} x ${nights} noches</span><span>$${subtotal}</span>`;
-                priceTotalElement.textContent = `$${currentTotal}`;
+                if(priceItems[0]) priceItems[0].innerHTML = `<span>$${NIGHTLY_RATE} x ${nights} noches</span><span>$${subtotal}</span>`;
+                if(priceTotalElement) priceTotalElement.textContent = `$${currentTotal}`;
                 
                 if (isLoggedIn && confirmBtn) {
                     confirmBtn.disabled = false;
@@ -267,15 +261,15 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         }
 
-        priceItems[0].innerHTML = `<span>$${NIGHTLY_RATE} x 0 noches</span><span>$0</span>`;
-        priceTotalElement.textContent = `$0`;
-        if (confirmBtn) {
+        if(priceItems[0]) priceItems[0].innerHTML = `<span>$${NIGHTLY_RATE} x 0 noches</span><span>$0</span>`;
+        if(priceTotalElement) priceTotalElement.textContent = `$0`;
+        if(confirmBtn) {
             confirmBtn.disabled = true;
             confirmBtn.classList.add('disabled');
         }
     }
 
-    // --- ACCIÓN DE RESERVAR ---
+    // --- CONFIRMAR ---
     if (confirmBtn) {
         confirmBtn.addEventListener('click', async function () {
             if (!isLoggedIn) return;
@@ -325,8 +319,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                     successMessage.scrollIntoView({ behavior: 'smooth' });
                 }
                 confirmBtn.style.display = 'none';
+
                 alert("¡Tu reserva se ha realizado con éxito!");
-                
+
                 await loadAndBlockDates(accommodationId);
                 initCalendar(); 
                 
@@ -341,7 +336,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
     
-    // Volver al Home
+    // Volver
     const btnHome = document.getElementById('btn-home');
     if(btnHome) btnHome.addEventListener('click', () => window.location.href = 'home.html');
 });
