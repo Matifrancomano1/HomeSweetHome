@@ -88,6 +88,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         // D. Anfitrión
         renderHostInfo(accommodation.host);
 
+        // Reviews
+        renderReviews(accommodation.reviews);
+
         // E. Cargar Fechas y Calendario
         await loadAndBlockDates(accommodationId);
         initCalendar();
@@ -192,6 +195,110 @@ document.addEventListener('DOMContentLoaded', async function () {
             console.log("Fechas bloqueadas:", bookedDates.length);
 
         } catch (e) { console.error(e); }
+    }
+
+    // --- A. LÓGICA PARA CARGAR RESEÑAS ---
+    function renderReviews(reviews) {
+        const container = document.getElementById('reviews-list');
+        if (!container) return;
+        container.innerHTML = '';
+
+        if (!reviews || reviews.length === 0) {
+            container.innerHTML = '<p style="color:#777;">Aún no hay reseñas. ¡Sé el primero!</p>';
+            return;
+        }
+
+        reviews.forEach(rev => {
+            const card = document.createElement('div');
+            card.className = 'review-card';
+            
+            // Estrellas visuales
+            const stars = '★'.repeat(rev.rating) + '☆'.repeat(5 - rev.rating);
+            const userName = rev.user ? rev.user.firstName : 'Usuario';
+            
+            card.innerHTML = `
+                <div class="review-header">
+                    <span>${userName}</span>
+                    <span class="review-date">${rev.date || ''}</span>
+                </div>
+                <div class="review-rating">${stars}</div>
+                <p style="margin-top:0.5rem; color:#555;">"${rev.comment}"</p>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    // --- B. LÓGICA PARA EL FORMULARIO DE RESEÑA ---
+    
+    // 1. Mostrar formulario solo si está logueado
+    if (isLoggedIn) {
+        const formContainer = document.getElementById('review-form-container');
+        if (formContainer) formContainer.style.display = 'block';
+    }
+
+    // 2. Manejo de Estrellas (Click)
+    const stars = document.querySelectorAll('.star-rating .star');
+    const ratingInput = document.getElementById('rating-input');
+
+    stars.forEach(star => {
+        star.addEventListener('click', function() {
+            const val = parseInt(this.getAttribute('data-value'));
+            ratingInput.value = val;
+            
+            // Pintar estrellas
+            stars.forEach(s => {
+                if (parseInt(s.getAttribute('data-value')) <= val) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
+        });
+    });
+
+    // 3. Enviar Reseña
+    const submitReviewBtn = document.getElementById('submit-review-btn');
+    if (submitReviewBtn) {
+        submitReviewBtn.addEventListener('click', async () => {
+            const rating = parseInt(ratingInput.value);
+            const comment = document.getElementById('review-comment').value;
+
+            if (rating === 0) {
+                alert("Por favor selecciona una puntuación (estrellas).");
+                return;
+            }
+            if (!comment.trim()) {
+                alert("Por favor escribe un comentario.");
+                return;
+            }
+
+            try {
+                const payload = {
+                    rating: rating,
+                    comment: comment,
+                    userId: parseInt(userId),
+                    accomodationId: parseInt(accommodationId)
+                };
+
+                const response = await fetch(`${API_BASE_URL}/reviews`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error('Error al publicar reseña');
+
+                alert("¡Gracias por tu opinión!");
+                window.location.reload(); // Recargar para ver la nueva reseña
+
+            } catch (error) {
+                console.error(error);
+                alert("Hubo un error: " + error.message);
+            }
+        });
     }
 
     // --- CALENDARIO ---
