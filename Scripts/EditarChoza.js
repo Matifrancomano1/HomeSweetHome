@@ -21,22 +21,31 @@
     const photoPreview = document.getElementById('photo-preview');
     const editForm = document.getElementById('edit-form');
     const submitBtn = document.getElementById('submit-btn');
+    
+    // Contenedor de amenities en el HTML
+    const amenitiesContainer = document.querySelector('.amenities-grid');
 
-    // Estado global de imágenes
-    // currentImages guardará tanto objetos {url: "..."} que vienen del back
-    // como archivos nuevos convertidos a base64.
+    // Estado global
     let currentImages = []; 
-    let newFilesToProcess = []; // Archivos nuevos seleccionados por el usuario
+    let availableAmenities = []; // Lista completa del backend
 
-    // --- CARGAR DATOS DEL ALOJAMIENTO ---
+    // --- CARGA INICIAL ---
     try {
         const token = localStorage.getItem('jwtToken');
+        
+        // 1. Cargar TODAS las Amenities disponibles (Para dibujar los checkboxes)
+        const resAmenities = await fetch(`${API_BASE_URL}/amenities`);
+        if (resAmenities.ok) {
+            availableAmenities = await resAmenities.json();
+            renderAmenitiesCheckboxes(availableAmenities);
+        }
+
+        // 2. Cargar el Alojamiento
         const response = await fetch(`${API_BASE_URL}/accomodations/${accommodationId}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
         if (!response.ok) throw new Error("No se pudo cargar el alojamiento");
-
         const data = await response.json();
         console.log("Datos cargados:", data);
 
@@ -56,8 +65,7 @@
         // B. Marcar Amenities (Checkboxes)
         if (data.amenities) {
             data.amenities.forEach(amenity => {
-                // Buscamos el checkbox que tenga el mismo ID o Nombre
-                // Asumimos que el value del checkbox es el ID
+                // Buscamos el checkbox por su valor (ID) y lo marcamos
                 const checkbox = document.querySelector(`input[name="amenities"][value="${amenity.id}"]`);
                 if (checkbox) checkbox.checked = true;
             });
@@ -67,7 +75,7 @@
         if (data.images) {
             currentImages = data.images.map(img => ({ 
                 url: img.url,
-                isExisting: true // Marca para saber que ya existía
+                isExisting: true
             }));
             renderPreviews();
         }
@@ -78,8 +86,23 @@
         window.location.href = 'anfitrion.html';
     }
 
+    // --- FUNCIÓN PARA DIBUJAR AMENITIES DINÁMICAMENTE ---
+    function renderAmenitiesCheckboxes(amenitiesList) {
+        if (!amenitiesContainer) return;
+        amenitiesContainer.innerHTML = ''; // Limpiar hardcode
 
-    // --- MANEJO DE FOTOS (Nuevas) ---
+        amenitiesList.forEach(am => {
+            const label = document.createElement('label');
+            label.className = 'checkbox-label';
+            label.innerHTML = `
+                <input type="checkbox" name="amenities" value="${am.id}" data-name="${am.name}"> 
+                ${am.name}
+            `;
+            amenitiesContainer.appendChild(label);
+        });
+    }
+
+    // --- MANEJO DE FOTOS (Igual que antes) ---
     photoUpload.addEventListener('click', () => photoInput.click());
 
     photoInput.addEventListener('change', function(e) {
@@ -87,7 +110,6 @@
         this.value = '';
     });
 
-    // Helper Base64
     const toBase64 = file => new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -97,21 +119,13 @@
 
     async function handleFiles(files) {
         if (!files || files.length === 0) return;
-        
-        // Convertimos los nuevos archivos a Base64 inmediatamente para previsualizar y guardar
         const fileArray = Array.from(files).filter(file => file.type.startsWith('image/'));
         
         for (const file of fileArray) {
             try {
                 const base64 = await toBase64(file);
-                // Agregamos al array global
-                currentImages.push({
-                    url: base64,
-                    isExisting: false // Es nueva
-                });
-            } catch (err) {
-                console.error("Error leyendo archivo", err);
-            }
+                currentImages.push({ url: base64, isExisting: false });
+            } catch (err) { console.error(err); }
         }
         renderPreviews();
     }
@@ -134,7 +148,6 @@
             const btn = document.createElement('button');
             btn.innerHTML = '×';
             btn.style.cssText = "position:absolute; top:2px; right:2px; background:red; color:white; border:none; border-radius:50%; width:20px; height:20px; cursor:pointer;";
-            // Importante: type="button" para que no envíe el form al hacer clic
             btn.type = "button"; 
             btn.onclick = () => removeImage(index);
 
@@ -149,7 +162,6 @@
     editForm.addEventListener('submit', async function(e) {
         e.preventDefault();
 
-        // Validación fotos
         if (currentImages.length < 3) {
             alert("Debes mantener al menos 3 fotos en el alojamiento.");
             return;
@@ -160,59 +172,43 @@
         submitBtn.disabled = true;
 
         try {
-            // 1. Capturar datos del formulario
             const title = document.getElementById('title').value;
             const description = document.getElementById('description').value;
             const price = parseFloat(document.getElementById('price').value);
             const maxGuests = parseInt(document.getElementById('maxGuests').value);
             
-            // Ubicación
             const address = document.getElementById('address').value;
             const city = document.getElementById('city').value;
             const country = document.getElementById('country').value;
             const postalCode = document.getElementById('postalCode').value;
 
-            // Amenities
             const checkedAmenities = Array.from(document.querySelectorAll('input[name="amenities"]:checked'));
             const amenitiesList = checkedAmenities.map(checkbox => ({
                 id: parseInt(checkbox.value),
                 name: checkbox.dataset.name
             }));
 
-            // 2. Construir el Payload (Solo mandamos lo que queremos actualizar)
-            // Nota: En un PATCH completo, enviamos el estado final deseado.
             const payload = {
                 title: title,
                 description: description,
                 pricePerNight: price,
                 maxGuests: maxGuests,
-                
-                // Mantenemos el hostId original (el backend suele ignorarlo en update, pero por si acaso)
                 hostId: parseInt(localStorage.getItem('userId')),
-
                 location: {
                     address: address,
                     city: city,
                     country: country,
                     postalCode: postalCode,
-                    // Si tuviéramos lat/long originales, deberíamos preservarlos o dejarlos en 0 si no se editan
                     latitude: 0.0, 
                     longitude: 0.0
                 },
-
-                // Enviamos el array FINAL de imágenes (mezcla de viejas y nuevas)
-                // El backend debería reemplazar la lista anterior con esta nueva lista
                 images: currentImages.map(img => ({ url: img.url })),
-
                 amenities: amenitiesList
             };
 
-            console.log("Enviando Update:", payload);
-
-            // 3. Enviar PATCH
             const token = localStorage.getItem('jwtToken');
             const response = await fetch(`${API_BASE_URL}/accomodations/${accommodationId}`, {
-                method: 'PATCH', // O PUT, depende de tu backend. Tu controller tiene @PatchMapping
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
@@ -226,9 +222,7 @@
             }
 
             alert("Alojamiento actualizado correctamente.");
-            
-            // Limpiar caché para ver los cambios
-            sessionStorage.removeItem('host_dashboard_data');
+            sessionStorage.removeItem('host_dashboard_lite'); // Borrar caché
             
             window.location.href = 'anfitrion.html';
 
