@@ -1,10 +1,11 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
     
     // --- VARIABLES ---
     const photoUpload = document.getElementById('main-photo-upload');
     const photoInput = document.getElementById('photo-input');
     const photoPreview = document.getElementById('photo-preview');
     const createForm = document.getElementById('create-form');
+    const amenitiesContainer = document.getElementById('amenities-container');
     
     let storedFiles = []; 
 
@@ -24,6 +25,39 @@ document.addEventListener('DOMContentLoaded', function () {
         photoUpload.style.borderColor = '#ccc';
         handleFiles(e.dataTransfer.files);
     });
+
+    // --- 1. CARGAR AMENITIES DISPONIBLES ---
+    try {
+        const res = await fetch(`${API_BASE_URL}/amenities`);
+        if (res.ok) {
+            const amenities = await res.json();
+            renderAmenitiesCheckboxes(amenities);
+        } else {
+            amenitiesContainer.innerHTML = '<p style="color:red">Error al cargar comodidades.</p>';
+        }
+    } catch (error) {
+        console.error("Error amenities:", error);
+    }
+
+    // Función para dibujar los checkboxes
+    function renderAmenitiesCheckboxes(list) {
+        if (!list || list.length === 0) {
+            amenitiesContainer.innerHTML = '<p>No hay opciones disponibles.</p>';
+            return;
+        }
+        amenitiesContainer.innerHTML = ''; // Limpiar "Cargando..."
+
+        list.forEach(am => {
+            const label = document.createElement('label');
+            label.className = 'checkbox-label';
+            // Creamos el checkbox con el ID real de la base de datos
+            label.innerHTML = `
+                <input type="checkbox" name="amenities" value="${am.id}" data-name="${am.name}"> 
+                ${am.name}
+            `;
+            amenitiesContainer.appendChild(label);
+        });
+    }
 
     function handleFiles(files) {
         if (!files || files.length === 0) return;
