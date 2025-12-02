@@ -15,8 +15,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     const guestInfoSection = document.getElementById('guest-info-section');
     const loginWarning = document.getElementById('login-warning');
     const successMessage = document.getElementById('success-message');
+    
     const priceItems = document.querySelectorAll('.price-item');
     const priceTotalElement = document.querySelector('.price-total span:last-child');
+    
     const guestNameInput = document.getElementById('guest-name');
     const guestEmailInput = document.getElementById('guest-email');
 
@@ -27,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     let currentTotal = 0;
     let bookedDates = []; 
 
-    // --- DEFINICIÓN DE PICKERS ---
+    // --- DEFINICIÓN DE PICKERS (IMPORTANTE: GLOBAL) ---
     let checkinPicker = null;
     let checkoutPicker = null;
 
@@ -64,8 +66,22 @@ document.addEventListener('DOMContentLoaded', async function () {
         
         NIGHTLY_RATE = accommodation.pricePerNight || 0;
 
-        if (imgElem && accommodation.images && accommodation.images.length > 0) {
-            imgElem.style.backgroundImage = `url('${accommodation.images[0].url}')`;
+        // Imágenes (Principal y Secundarias)
+        if (accommodation.images && accommodation.images.length > 0) {
+            // Principal
+            if (imgElem) imgElem.style.backgroundImage = `url('${accommodation.images[0].url}')`;
+            
+            // Secundarias
+            const secondaryDivs = document.querySelectorAll('.secondary-image');
+            secondaryDivs.forEach((div, index) => {
+                const imgIndex = index + 1; 
+                if (accommodation.images[imgIndex]) {
+                    div.style.backgroundImage = `url('${accommodation.images[imgIndex].url}')`;
+                    div.style.display = 'block';
+                } else {
+                    div.style.backgroundColor = '#eee'; 
+                }
+            });
         }
 
         // CARGAR FECHAS OCUPADAS
@@ -79,11 +95,11 @@ document.addEventListener('DOMContentLoaded', async function () {
         console.error(error);
     }
 
-    // --- HELPER FECHAS (ROBUSTO) ---
+    // --- HELPER FECHAS (TIMEZONE SAFE) ---
     function normalizeDate(dateInput) {
         if (!dateInput) return null;
-        // Creamos la fecha y ajustamos la zona horaria para obtener el día calendario correcto
         const date = new Date(dateInput);
+        // Ajustamos la zona horaria para obtener la fecha calendario correcta (YYYY-MM-DD)
         const userTimezoneOffset = date.getTimezoneOffset() * 60000;
         const adjustedDate = new Date(date.getTime() + userTimezoneOffset);
         return adjustedDate.toISOString().split('T')[0];
@@ -92,15 +108,33 @@ document.addEventListener('DOMContentLoaded', async function () {
     // --- CARGAR RESERVAS ---
     async function loadAndBlockDates(accId) {
         try {
-            const res = await fetch(`${API_BASE_URL}/reservations/accomodation/${accId}`);
-            if (!res.ok) return;
-            const myReservations = await res.json();
+            // Usamos el endpoint específico si existe, o filtramos
+            // Nota: Si tienes el endpoint específico /accommodation/{id}, úsalo aquí.
+            const res = await fetch(`${API_BASE_URL}/reservations/accommodation/${accId}`);
+            
+            // Fallback si el endpoint específico no existe (404/403), intentamos el general
+            if (!res.ok) {
+                console.warn("Endpoint específico falló, intentando general...");
+                const resAll = await fetch(`${API_BASE_URL}/reservations`);
+                if (!resAll.ok) return;
+                const all = await resAll.json();
+                
+                // Filtramos manual
+                const myReservations = all.filter(r => 
+                    String(r.accomodation.id) === String(accId) && !r.deletedAt
+                );
+                
+                bookedDates = myReservations.map(r => ({
+                    from: normalizeDate(r.checkIn),
+                    to: normalizeDate(r.checkOut)
+                }));
+                return;
+            }
 
-            // Filtramos solo las que no estén borradas (canceladas)
-            // Ya no hace falta filtrar por ID de casa porque el backend ya lo hizo
+            const myReservations = await res.json();
+            // Filtramos solo las no borradas
             const activeReservations = myReservations.filter(r => !r.deletedAt);
 
-            // Convertimos al formato que Flatpickr entiende
             bookedDates = activeReservations.map(r => ({
                 from: normalizeDate(r.checkIn),
                 to: normalizeDate(r.checkOut)
@@ -108,7 +142,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             console.log("Fechas bloqueadas cargadas:", bookedDates.length);
 
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Error cargando ocupación:", e); }
     }
 
     // --- CALENDARIO (FLATPICKR) ---
@@ -121,21 +155,23 @@ document.addEventListener('DOMContentLoaded', async function () {
             disableMobile: true
         };
 
-        // Input Llegada (Usamos la variable global sin 'const')
+        // CHECK-IN
         checkinPicker = flatpickr("#checkin-date", {
             ...commonConfig,
             onChange: function(selectedDates, dateStr) {
                 if (selectedDates[0]) {
                     const minCheckout = new Date(selectedDates[0]);
-                    minCheckout.setDate(minCheckout.getDate() + 1);
+                    minCheckout.setDate(minCheckout.getDate() + 1); // Salida mín. 1 día después
                     
                     if (checkoutPicker) {
                         checkoutPicker.set('minDate', minCheckout);
                         
+                        // Si la fecha de salida seleccionada ya no es válida, la borramos
                         const currentCheckout = checkoutPicker.selectedDates[0];
                         if (currentCheckout && currentCheckout <= selectedDates[0]) {
                             checkoutPicker.clear();
                         }
+                        // Abrir checkout automáticamente
                         setTimeout(() => checkoutPicker.open(), 100);
                     }
                 }
@@ -143,7 +179,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         });
 
-        // Input Salida (Usamos la variable global sin 'const')
+        // CHECK-OUT
         checkoutPicker = flatpickr("#checkout-date", {
             ...commonConfig,
             onChange: function() {
@@ -172,8 +208,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                 const subtotal = NIGHTLY_RATE * nights;
                 currentTotal = subtotal + CLEANING_FEE + SERVICE_FEE;
 
-                if(priceItems[0]) priceItems[0].innerHTML = `<span>$${NIGHTLY_RATE} x ${nights} noches</span><span>$${subtotal}</span>`;
-                if(priceTotalElement) priceTotalElement.textContent = `$${currentTotal}`;
+                priceItems[0].innerHTML = `<span>$${NIGHTLY_RATE} x ${nights} noches</span><span>$${subtotal}</span>`;
+                priceTotalElement.textContent = `$${currentTotal}`;
                 
                 if (isLoggedIn && confirmBtn) {
                     confirmBtn.disabled = false;
@@ -183,10 +219,10 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         }
 
-        // Default
-        if(priceItems[0]) priceItems[0].innerHTML = `<span>$${NIGHTLY_RATE} x 0 noches</span><span>$0</span>`;
-        if(priceTotalElement) priceTotalElement.textContent = `$0`;
-        if(confirmBtn) {
+        // Reset
+        priceItems[0].innerHTML = `<span>$${NIGHTLY_RATE} x 0 noches</span><span>$0</span>`;
+        priceTotalElement.textContent = `$0`;
+        if (confirmBtn) {
             confirmBtn.disabled = true;
             confirmBtn.classList.add('disabled');
         }
@@ -229,7 +265,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                 if (!response.ok) {
                     const errorText = await response.text();
-                    // Intentamos parsear si es un JSON de error
                     try {
                         const errorJson = JSON.parse(errorText);
                         throw new Error(errorJson.message || errorText);
@@ -238,13 +273,22 @@ document.addEventListener('DOMContentLoaded', async function () {
                     }
                 }
 
+                // ÉXITO
                 if (successMessage) {
                     successMessage.style.display = 'block';
                     successMessage.scrollIntoView({ behavior: 'smooth' });
                 }
                 confirmBtn.style.display = 'none';
 
-                setTimeout(() => { window.location.href = 'home.html'; }, 3000);
+                alert("¡Tu reserva se ha realizado con éxito!");
+
+                // Recargar fechas bloqueadas para mostrar el cambio visual
+                await loadAndBlockDates(accommodationId);
+                // Reiniciar calendarios con las nuevas fechas bloqueadas
+                initCalendar(); 
+                
+                // Reset visual del botón (por si quieren reservar otra cosa, aunque ya ocultamos el botón)
+                confirmBtn.textContent = "Reserva Confirmada";
 
             } catch (error) {
                 console.error(error);

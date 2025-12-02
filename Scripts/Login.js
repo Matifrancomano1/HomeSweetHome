@@ -32,6 +32,11 @@ document.addEventListener('DOMContentLoaded', function () {
         togglePasswordVisibility(passwordField, this);
     });
 
+    document.getElementById('toggle-register-confirm-password').addEventListener('click', function () {
+        const passwordConfirmField = document.getElementById('register-confirm-password');
+        togglePasswordVisibility(passwordConfirmField, this);
+    });
+
     function togglePasswordVisibility(field, icon) {
         if (field.type === 'password') {
             field.type = 'text';
@@ -157,15 +162,48 @@ document.addEventListener('DOMContentLoaded', function () {
                 role: role
             };
 
-            fetch(`${API_BASE_URL}/user`, { // Asegúrate que la ruta sea correcta (/auth/register o /users)
+            fetch(`${API_BASE_URL}/users`, { 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(registerData)
             })
-            .then(response => {
+            .then(async response => {
+                // 1. Si la respuesta NO es OK (ej: 400 Bad Request)
                 if (!response.ok) {
-                    return response.json().then(err => { throw new Error(err.message || 'Error en registro'); });
+                    const errorData = await response.json().catch(() => ({})); // Intentamos leer el JSON de error
+                    
+                    // Si el backend nos mandó errores de campos específicos (gracias al GlobalExceptionHandler)
+                    // El formato es: { "firstName": "Mensaje de error", "email": "Mensaje..." }
+                    if (response.status === 400 && typeof errorData === 'object') {
+                        
+                        let hayErroresEspecificos = false;
+
+                        // Mapeamos los campos del DTO Java a los IDs de tus inputs HTML
+                        const fieldMap = {
+                            'firstName': 'register-firstname',
+                            'lastName':  'register-lastname',
+                            'email':     'register-email',
+                            'password':  'register-password'
+                        };
+
+                        // Recorremos los errores y los mostramos en pantalla
+                        for (const [backendField, msg] of Object.entries(errorData)) {
+                            const inputId = fieldMap[backendField];
+                            if (inputId) {
+                                showError(inputId, msg); // Tu función helper existente
+                                hayErroresEspecificos = true;
+                            }
+                        }
+
+                        if (hayErroresEspecificos) {
+                            throw new Error("Por favor corrige los errores en el formulario.");
+                        }
+                    }
+
+                    // Si no pudimos mapear nada, lanzamos el mensaje genérico
+                    throw new Error(errorData.message || errorData.error || 'Error en el registro');
                 }
+                
                 return response.json();
             })
             .then(data => {
